@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Android OS Data Extraction Rules (Android 12+ / API 31+)
+    Kirana Inventory Management System:
+    Distinction between backup systems:
+    1. Android OS Backup: System-level cloud backup to Google Drive associated with user account.
+    2. Application Automatic Safety Backup: Local snapshot files stored in app-internal auto_backups/ directory.
+    3. Manual JSON Backup: User-controlled complete business database export using Storage Access Framework (SAF).
+-->
+<data-extraction-rules>
+    <cloud-backup>
+        <include domain="database" path="." />
+        <include domain="sharedpref" path="." />
+    </cloud-backup>
+    <device-transfer>
+        <include domain="database" path="." />
+        <include domain="sharedpref" path="." />
+        <include domain="file" path="auto_backups" />
+    </device-transfer>
+</data-extraction-rules>
+

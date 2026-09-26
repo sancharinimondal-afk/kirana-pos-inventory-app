@@ -1,0 +1,59 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Basket wheels -->
+    <path
+        android:fillColor="#334155"
+        android:pathData="M40,84m-5,0a5,5 0 1,1 10,0a5,5 0 1,1 -10,0" />
+    <path
+        android:fillColor="#334155"
+        android:pathData="M72,84m-5,0a5,5 0 1,1 10,0a5,5 0 1,1 -10,0" />
+    <path
+        android:fillColor="#E2E8F0"
+        android:pathData="M40,84m-2,0a2,2 0 1,1 4,0a2,2 0 1,1 -4,0" />
+    <path
+        android:fillColor="#E2E8F0"
+        android:pathData="M72,84m-2,0a2,2 0 1,1 4,0a2,2 0 1,1 -4,0" />
+
+    <!-- Groceries sticking out of basket -->
+    <!-- Green vegetable / cabbage -->
+    <path
+        android:fillColor="#22C55E"
+        android:pathData="M32,40 C30,32 40,26 46,30 C50,26 60,28 60,36 C54,34 44,36 40,40 Z" />
+    <!-- Red tomato -->
+    <path
+        android:fillColor="#EF4444"
+        android:pathData="M58,34m-7,0a7,7 0 1,1 14,0a7,7 0 1,1 -14,0" />
+    <!-- Yellow packet / cereal box -->
+    <path
+        android:fillColor="#FBBF24"
+        android:pathData="M66,24 L78,28 L74,48 L62,44 Z" />
+    <!-- Bottle -->
+    <path
+        android:fillColor="#38BDF8"
+        android:pathData="M42,28 L48,28 L48,38 L42,38 Z" />
+    <path
+        android:fillColor="#0284C7"
+        android:pathData="M44,24 L46,24 L46,28 L44,28 Z" />
+
+    <!-- Basket Handle -->
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="3.5"
+        android:pathData="M30,44 C34,22 74,22 78,44" />
+
+    <!-- Shopping Basket Body (Vibrant Orange) -->
+    <path
+        android:fillColor="#FF5E00"
+        android:pathData="M24,44 L84,44 C86.2,44 88,45.8 87.6,48 L82.6,73 C82.2,75.2 80.4,77 78.2,77 L29.8,77 C27.6,77 25.8,75.2 25.4,73 L20.4,48 C20,45.8 21.8,44 24,44 Z" />
+
+    <!-- Basket grid holes / texture -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M32,52 L38,52 L37,60 L31,60 Z M42,52 L50,52 L49,60 L41,60 Z M54,52 L62,52 L61,60 L53,60 Z M66,52 L74,52 L73,60 L65,60 Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M34,64 L39,64 L38,71 L33,71 Z M43,64 L50,64 L49,71 L42,71 Z M54,64 L61,64 L60,71 L53,71 Z M65,64 L72,64 L71,71 L64,71 Z" />
+</vector>

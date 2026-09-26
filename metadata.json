@@ -1,0 +1,12 @@
+{
+  "name": "Grocery Shop",
+  "description": "Store Management - Manage Your Store Easily & Smartly. Features inventory, billing, purchase, reports, stock alerts, and backup.",
+  "requestFramePermissions": [
+    "android.permission.CAMERA",
+    "android.permission.BLUETOOTH",
+    "android.permission.BLUETOOTH_CONNECT",
+    "android.permission.BLUETOOTH_SCAN"
+  ],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+

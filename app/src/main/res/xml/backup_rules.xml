@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Android OS Full Backup Rules (Legacy / API < 31)
+    Kirana Inventory Management System:
+    - Android OS Backup: Managed by OS/Play Services for cloud restoration.
+    - Application Safety Backup: Dedicated internal local snapshots in auto_backups/ folder.
+    - Manual JSON Backup: User-controlled SAF export for absolute independence & disaster recovery.
+-->
+<full-backup-content>
+    <include domain="database" path="." />
+    <include domain="sharedpref" path="." />
+</full-backup-content>
+

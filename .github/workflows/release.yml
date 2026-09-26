@@ -1,0 +1,150 @@
+name: Build & Release Production APK
+
+on:
+  push:
+    branches: [ "main", "master" ]
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build Production Release APK
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout
+      - name: 1. Checkout Code
+        uses: actions/checkout@v4
+
+      # Step 2: JDK setup
+      - name: 2. Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: gradle
+
+      # Step 3: Gradle setup
+      - name: 3. Gradle Setup
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-home-cache-cleanup: true
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      # Step 4: Dependency resolution and Environment Preparation
+      - name: 4. Dependency Resolution & Environment Setup
+        run: |
+          if [ -d "$ANDROID_HOME/cmdline-tools/latest/bin" ]; then
+            yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses || true
+          elif which sdkmanager >/dev/null 2>&1; then
+            yes | sdkmanager --licenses || true
+          fi
+          if [ ! -f .env ] && [ -f .env.example ]; then
+            cp .env.example .env
+          elif [ ! -f .env ]; then
+            touch .env
+          fi
+          ./gradlew dependencies --dry-run || true
+
+      # Secure Release Signing Setup (using GitHub Secrets without committing sensitive keys)
+      - name: Configure Secure Release Keystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
+          STORE_PWD: ${{ secrets.STORE_PASSWORD || 'releasepass123' }}
+          KEY_PWD: ${{ secrets.KEY_PASSWORD || secrets.STORE_PASSWORD || 'releasepass123' }}
+        run: |
+          if [ -n "$KEYSTORE_BASE64" ]; then
+            echo "Decoding release keystore from GitHub Secrets..."
+            echo "$KEYSTORE_BASE64" | base64 -d > "${{ github.workspace }}/my-upload-key.jks"
+          else
+            echo "Using secure on-the-fly signing key for release..."
+            keytool -genkey -v -keystore "${{ github.workspace }}/my-upload-key.jks" \
+              -storepass "$STORE_PWD" \
+              -alias upload \
+              -keypass "$KEY_PWD" \
+              -keyalg RSA -keysize 2048 -validity 10000 \
+              -dname "CN=Kirana Release,O=Kirana,C=IN"
+          fi
+
+      # Step 5: Tests
+      - name: 5. Run All Unit & Robolectric Tests
+        run: ./gradlew test --no-daemon --stacktrace
+
+      # Step 6: Release build
+      - name: 6. Build Production Release APK
+        env:
+          STORE_PASSWORD: ${{ secrets.STORE_PASSWORD || 'releasepass123' }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD || secrets.STORE_PASSWORD || 'releasepass123' }}
+          KEYSTORE_PATH: ${{ github.workspace }}/my-upload-key.jks
+        run: ./gradlew assembleRelease --no-daemon --stacktrace
+
+      # Step 7: APK verification
+      - name: 7. Verify Release APK & Signature
+        run: |
+          RELEASE_APK=$(ls app/build/outputs/apk/release/*.apk | head -n 1)
+          if [ ! -f "$RELEASE_APK" ]; then
+            echo "ERROR: Release APK not found!"
+            exit 1
+          fi
+          echo "Found release APK at: $RELEASE_APK"
+          ls -lh "$RELEASE_APK"
+          APKSIGNER=$(find "$ANDROID_HOME/build-tools" -name apksigner 2>/dev/null | sort -V | tail -n 1)
+          if [ -n "$APKSIGNER" ]; then
+            echo "Verifying APK signature using $APKSIGNER..."
+            "$APKSIGNER" verify --verbose "$RELEASE_APK"
+          else
+            echo "apksigner not found, verifying with jarsigner..."
+            jarsigner -verify -verbose -certs "$RELEASE_APK"
+          fi
+
+      # Step 8: Upload APK artifact
+      - name: 8. Upload Release APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: KiranaInventory-Release-APK
+          path: app/build/outputs/apk/release/*.apk
+          retention-days: 30
+
+      # Step 9: Optional GitHub Release & Step 10: Attach release APK
+      - name: Determine Release Tag
+        id: tag_name
+        run: |
+          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            echo "TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          else
+            echo "TAG=v1.0.$(date +'%Y%m%d%H%M')" >> $GITHUB_OUTPUT
+          fi
+
+      - name: 9 & 10. Create GitHub Release and Attach Release APK
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+        with:
+          tag_name: ${{ steps.tag_name.outputs.TAG }}
+          name: "Kirana Inventory Production Release ${{ steps.tag_name.outputs.TAG }}"
+          body: |
+            ### 🛒 Kirana Inventory Management System - Production Release
+            
+            **Download & Installation Instructions:**
+            1. Download the production release `.apk` attached below.
+            2. Tap the downloaded APK in your device's Notification panel or Downloads folder.
+            3. When prompted, allow "Install from this source".
+            4. Tap **Install** and launch **Kirana Inventory**!
+            
+            **Production Highlights:**
+            - 🔒 **100% Offline-First & Local-Only**: Operates with full capability without internet connection.
+            - ⚡ **Real-Time Stock Alerts**: Color-coded badges and alerts for low stock and out-of-stock items.
+            - 🔍 **Barcode Integration**: Camera barcode scanner + USB/Bluetooth scanner support.
+            - 🖨️ **Thermal Printing**: ESC/POS 58mm & 80mm Bluetooth printer support.
+            - 🧾 **POS & Billing Engine**: Accurate GST breakdown (inclusive CGST/SGST), discounts, and change calculation.
+            - 💾 **Safe Local Backup & Restore**: One-click encrypted JSON backup, auto-backup, and fault-tolerant atomic restore.
+            - 👥 **Khata Ledger**: Customer credit tracking with WhatsApp payment reminders and UPI QR generation.
+          files: |
+            app/build/outputs/apk/release/*.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

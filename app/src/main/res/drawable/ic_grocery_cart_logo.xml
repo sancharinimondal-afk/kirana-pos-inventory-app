@@ -1,0 +1,60 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="96dp"
+    android:height="96dp"
+    android:viewportWidth="96"
+    android:viewportHeight="96">
+    <!-- Basket wheels -->
+    <path
+        android:fillColor="#334155"
+        android:pathData="M34,80m-5,0a5,5 0 1,1 10,0a5,5 0 1,1 -10,0" />
+    <path
+        android:fillColor="#334155"
+        android:pathData="M66,80m-5,0a5,5 0 1,1 10,0a5,5 0 1,1 -10,0" />
+    <path
+        android:fillColor="#E2E8F0"
+        android:pathData="M34,80m-2,0a2,2 0 1,1 4,0a2,2 0 1,1 -4,0" />
+    <path
+        android:fillColor="#E2E8F0"
+        android:pathData="M66,80m-2,0a2,2 0 1,1 4,0a2,2 0 1,1 -4,0" />
+
+    <!-- Groceries sticking out of basket -->
+    <!-- Green vegetable / cabbage -->
+    <path
+        android:fillColor="#22C55E"
+        android:pathData="M26,36 C24,28 34,22 40,26 C44,22 54,24 54,32 C48,30 38,32 34,36 Z" />
+    <!-- Red tomato / apple -->
+    <path
+        android:fillColor="#EF4444"
+        android:pathData="M52,30m-7,0a7,7 0 1,1 14,0a7,7 0 1,1 -14,0" />
+    <!-- Yellow milk / bread / cereal box -->
+    <path
+        android:fillColor="#FBBF24"
+        android:pathData="M60,20 L72,24 L68,44 L56,40 Z" />
+    <!-- Blue / white bottle -->
+    <path
+        android:fillColor="#38BDF8"
+        android:pathData="M36,24 L42,24 L42,34 L36,34 Z" />
+    <path
+        android:fillColor="#0284C7"
+        android:pathData="M38,20 L40,20 L40,24 L38,24 Z" />
+
+    <!-- Shopping Basket Body (Vibrant Orange) -->
+    <path
+        android:fillColor="#FF5E00"
+        android:pathData="M18,40 L78,40 C80.2,40 82,41.8 81.6,44 L76.6,69 C76.2,71.2 74.4,73 72.2,73 L23.8,73 C21.6,73 19.8,71.2 19.4,69 L14.4,44 C14,41.8 15.8,40 18,40 Z" />
+
+    <!-- Basket Handle (Silver / Dark) -->
+    <path
+        android:fillColor="#D97706"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2.5"
+        android:pathData="M24,40 C28,18 68,18 72,40" />
+
+    <!-- Basket grid holes / texture (White & Semi-transparent) -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M26,48 L32,48 L31,56 L25,56 Z M36,48 L44,48 L43,56 L35,56 Z M48,48 L56,48 L55,56 L47,56 Z M60,48 L68,48 L67,56 L59,56 Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M28,60 L33,60 L32,67 L27,67 Z M37,60 L44,60 L43,67 L36,67 Z M48,60 L55,60 L54,67 L47,67 Z M59,60 L66,60 L65,67 L58,67 Z" />
+</vector>
