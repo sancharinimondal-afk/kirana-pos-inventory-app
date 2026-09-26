@@ -1,9 +1,11 @@
 package com.example
 
 import android.content.Context
+import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import com.example.data.AppDatabase
 import com.example.data.BillingSettingsManager
+import com.example.data.DATABASE_CALLBACK
 import com.example.data.KiranaRepository
 import com.example.data.model.CartItem
 import com.example.data.model.Customer
@@ -21,28 +23,31 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [34])
+@Config(sdk = [36])
 class DashboardAndSettingsTest {
 
     private lateinit var context: Context
     private lateinit var database: AppDatabase
     private lateinit var repository: KiranaRepository
+    private val dbName = "test_dashboard_settings.db"
 
     @Before
     fun setup() {
-        context = ApplicationProvider.getApplicationContext()
-        database = AppDatabase.getDatabase(context)
+        context = ApplicationProvider.getApplicationContext<Context>()
+        context.deleteDatabase(dbName)
+        database = Room.databaseBuilder(context, AppDatabase::class.java, dbName)
+            .addCallback(DATABASE_CALLBACK)
+            .allowMainThreadQueries()
+            .build()
         repository = KiranaRepository(database)
-        runBlocking {
-            database.clearAllTables()
-        }
     }
 
     @After
     fun tearDown() {
-        runBlocking {
-            database.clearAllTables()
+        if (::database.isInitialized && database.isOpen) {
+            database.close()
         }
+        context.deleteDatabase(dbName)
     }
 
     @Test
