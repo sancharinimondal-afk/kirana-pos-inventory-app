@@ -1,5 +1,6 @@
 package com.example.ui.screens
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -67,7 +68,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.data.model.CustomerWithBalance
 import com.example.ui.KiranaViewModel
 import com.example.ui.StockFilterOption
-import com.example.ui.theme.GroceryNavy
 import com.example.ui.theme.GroceryOrange
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -137,7 +137,7 @@ fun DashboardScreen(
     var showCustomersDialog by remember { mutableStateOf(false) }
 
     val quickActions = listOf(
-        QuickActionItem("New Sale", Icons.Default.PointOfSale, Color(0xFFFFF7ED), GroceryOrange) {
+        QuickActionItem("New Sale", Icons.Default.PointOfSale, Color(0xFFCCFBF1), Color(0xFF0F766E)) {
             onNavigateToPos()
         },
         QuickActionItem("Purchase", Icons.Default.ShoppingCart, Color(0xFFEFF6FF), Color(0xFF2563EB)) {
@@ -164,7 +164,7 @@ fun DashboardScreen(
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFFF8FAFC))
+            .background(MaterialTheme.colorScheme.background)
             .padding(horizontal = 16.dp)
             .testTag("dashboard_screen"),
         verticalArrangement = Arrangement.spacedBy(14.dp),
@@ -176,7 +176,8 @@ fun DashboardScreen(
         item {
             Card(
                 shape = RoundedCornerShape(18.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
                 elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -190,14 +191,14 @@ fun DashboardScreen(
                 ) {
                     Surface(
                         shape = CircleShape,
-                        color = Color(0xFFFFE8DC),
+                        color = MaterialTheme.colorScheme.primaryContainer,
                         modifier = Modifier.size(50.dp)
                     ) {
                         Box(contentAlignment = Alignment.Center) {
                             Icon(
                                 imageVector = Icons.Default.Storefront,
                                 contentDescription = "Shop Storefront",
-                                tint = GroceryOrange,
+                                tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.size(28.dp)
                             )
                         }
@@ -210,7 +211,7 @@ fun DashboardScreen(
                             text = shopSettings.shopName.ifBlank { "Shree Ganesh Kirana Store" },
                             fontSize = 17.sp,
                             fontWeight = FontWeight.Bold,
-                            color = GroceryNavy,
+                            color = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.testTag("dashboard_shop_name")
                         )
                         Spacer(modifier = Modifier.height(2.dp))
@@ -228,13 +229,13 @@ fun DashboardScreen(
                         onClick = onOpenScanner,
                         modifier = Modifier
                             .size(42.dp)
-                            .background(Color(0xFFF1F5F9), CircleShape)
+                            .background(MaterialTheme.colorScheme.surfaceVariant, CircleShape)
                             .testTag("dashboard_scan_barcode_btn")
                     ) {
                         Icon(
                             imageVector = Icons.Default.QrCodeScanner,
                             contentDescription = "Scan Barcode",
-                            tint = GroceryOrange,
+                            tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(22.dp)
                         )
                     }
@@ -251,7 +252,7 @@ fun DashboardScreen(
                     text = "QUICK ACTIONS",
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
-                    color = GroceryNavy,
+                    color = MaterialTheme.colorScheme.onBackground,
                     letterSpacing = 0.8.sp,
                     modifier = Modifier.padding(start = 2.dp, bottom = 8.dp)
                 )
@@ -354,7 +355,7 @@ fun DashboardScreen(
                     text = "STORE PERFORMANCE & INVENTORY",
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
-                    color = GroceryNavy,
+                    color = MaterialTheme.colorScheme.onBackground,
                     letterSpacing = 0.8.sp,
                     modifier = Modifier.padding(start = 2.dp, bottom = 8.dp)
                 )
@@ -521,7 +522,8 @@ private fun QuickActionButton(
 ) {
     Card(
         shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
         modifier = modifier
             .height(84.dp)
@@ -554,7 +556,7 @@ private fun QuickActionButton(
                 text = item.title,
                 fontSize = 11.sp,
                 fontWeight = FontWeight.Bold,
-                color = GroceryNavy,
+                color = MaterialTheme.colorScheme.onSurface,
                 maxLines = 1
             )
         }
@@ -572,8 +574,9 @@ private fun DashboardMetricCard(
 ) {
     Card(
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.5.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
         modifier = modifier.height(112.dp)
     ) {
         Column(
@@ -591,7 +594,7 @@ private fun DashboardMetricCard(
                     text = title,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = Color(0xFF64748B)
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Surface(
                     shape = CircleShape,
@@ -614,13 +617,13 @@ private fun DashboardMetricCard(
                     text = value,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.ExtraBold,
-                    color = GroceryNavy,
+                    color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1
                 )
                 Text(
                     text = subtitle,
                     fontSize = 10.sp,
-                    color = Color(0xFF94A3B8),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1
                 )
             }
@@ -648,9 +651,9 @@ private fun CustomerKhataOverviewDialog(
         onDismissRequest = onDismiss,
         title = {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Default.Group, contentDescription = null, tint = GroceryNavy, modifier = Modifier.size(24.dp))
+                Icon(Icons.Default.Group, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(24.dp))
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Customers & Khata Ledger", fontWeight = FontWeight.Bold, color = GroceryNavy, fontSize = 17.sp)
+                Text("Customers & Khata Ledger", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface, fontSize = 17.sp)
             }
         },
         text = {
@@ -659,7 +662,7 @@ private fun CustomerKhataOverviewDialog(
                     value = searchQuery,
                     onValueChange = { searchQuery = it },
                     placeholder = { Text("Search customer name / mobile") },
-                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = Color(0xFF94A3B8)) },
+                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant) },
                     singleLine = true,
                     shape = RoundedCornerShape(10.dp),
                     modifier = Modifier.fillMaxWidth()
@@ -672,7 +675,7 @@ private fun CustomerKhataOverviewDialog(
                             .padding(vertical = 24.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text("No customers found", color = Color(0xFF94A3B8), fontSize = 13.sp)
+                        Text("No customers found", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 13.sp)
                     }
                 } else {
                     LazyColumn(
@@ -685,7 +688,7 @@ private fun CustomerKhataOverviewDialog(
                             val balance = custWithBal.currentBalance
                             Surface(
                                 shape = RoundedCornerShape(10.dp),
-                                color = Color(0xFFF8FAFC),
+                                color = MaterialTheme.colorScheme.surfaceVariant,
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clickable { onSelectCustomer(custWithBal) }
@@ -698,8 +701,8 @@ private fun CustomerKhataOverviewDialog(
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Column {
-                                        Text(custWithBal.customer.name, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = GroceryNavy)
-                                        Text(custWithBal.customer.phone.ifBlank { "No phone" }, fontSize = 11.sp, color = Color(0xFF64748B))
+                                        Text(custWithBal.customer.name, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface)
+                                        Text(custWithBal.customer.phone.ifBlank { "No phone" }, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                     }
                                     Column(horizontalAlignment = Alignment.End) {
                                         Text(
@@ -725,7 +728,7 @@ private fun CustomerKhataOverviewDialog(
         confirmButton = {
             Button(
                 onClick = onDismiss,
-                colors = ButtonDefaults.buttonColors(containerColor = GroceryNavy)
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {
                 Text("Close")
             }

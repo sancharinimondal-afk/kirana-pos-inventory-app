@@ -64,7 +64,6 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.example.data.model.KiranaCategories
 import com.example.data.model.ProductItem
-import com.example.ui.theme.GroceryNavy
 import com.example.ui.theme.GroceryOrange
 import com.example.ui.theme.kiranaTextFieldColors
 import java.util.Locale

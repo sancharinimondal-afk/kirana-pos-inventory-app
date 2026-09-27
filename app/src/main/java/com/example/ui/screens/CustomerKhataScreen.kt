@@ -70,7 +70,6 @@ import com.example.data.model.Customer
 import com.example.data.model.CustomerWithBalance
 import com.example.data.model.LedgerEntry
 import com.example.ui.KiranaViewModel
-import com.example.ui.theme.GroceryNavy
 import com.example.ui.theme.GroceryOrange
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -281,8 +280,8 @@ fun CustomerKhataScreen(
             // FAB to Add Customer
             FloatingActionButton(
                 onClick = { showAddCustomerDialog = true },
-                containerColor = GroceryOrange,
-                contentColor = Color.White,
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
                 shape = CircleShape,
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
@@ -374,7 +373,7 @@ private fun CustomerListItemCard(
         ) {
             Surface(
                 shape = CircleShape,
-                color = Color(0xFFFFE8DC),
+                color = MaterialTheme.colorScheme.primaryContainer,
                 modifier = Modifier.size(44.dp)
             ) {
                 Box(contentAlignment = Alignment.Center) {
@@ -382,7 +381,7 @@ private fun CustomerListItemCard(
                         text = customer.name.take(1).uppercase(),
                         fontWeight = FontWeight.Bold,
                         fontSize = 18.sp,
-                        color = GroceryOrange
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                 }
             }
@@ -525,7 +524,7 @@ private fun CustomerLedgerView(
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = onBack) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = GroceryNavy)
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = MaterialTheme.colorScheme.onSurface)
             }
             Spacer(modifier = Modifier.width(4.dp))
             Column(modifier = Modifier.weight(1f)) {
@@ -533,7 +532,7 @@ private fun CustomerLedgerView(
                     text = customer.name,
                     fontSize = 17.sp,
                     fontWeight = FontWeight.Bold,
-                    color = GroceryNavy
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 if (customer.phone.isNotBlank()) {
                     Text(
@@ -913,7 +912,7 @@ private fun AddCustomerDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Add New Customer / Khata", fontWeight = FontWeight.Bold, color = GroceryNavy) },
+        title = { Text("Add New Customer / Khata", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 error?.let {
@@ -969,7 +968,7 @@ private fun AddCustomerDialog(
                     val opening = openingBalanceStr.toDoubleOrNull() ?: 0.0
                     onSave(name.trim(), phone.trim(), address.trim(), opening)
                 },
-                colors = ButtonDefaults.buttonColors(containerColor = GroceryOrange)
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {
                 Text("Save Customer")
             }
@@ -995,7 +994,7 @@ private fun RecordPaymentDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Accept Payment from ${customer.name}", fontWeight = FontWeight.Bold, color = GroceryNavy) },
+        title = { Text("Accept Payment from ${customer.name}", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 error?.let {
@@ -1067,7 +1066,7 @@ private fun RecordCreditDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Give Credit / Udhar to ${customer.name}", fontWeight = FontWeight.Bold, color = GroceryNavy) },
+        title = { Text("Give Credit / Udhar to ${customer.name}", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 error?.let {
@@ -1140,7 +1139,7 @@ private fun RecordAdjustmentDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Account Adjustment for ${customer.name}", fontWeight = FontWeight.Bold, color = GroceryNavy) },
+        title = { Text("Account Adjustment for ${customer.name}", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 error?.let {

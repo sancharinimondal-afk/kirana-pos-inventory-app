@@ -102,82 +102,74 @@ fun InventoryScreen(
         ) {
             Spacer(modifier = Modifier.height(8.dp))
 
-            // TOP SECTION: Search, Barcode Scanner, Add Product (Mandatory per Phase 9)
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // Search Input
-                OutlinedTextField(
-                    value = searchQuery,
-                    onValueChange = { viewModel.searchQuery.value = it },
-                    placeholder = { Text("Search by name, barcode, SKU, rack...", fontSize = 13.sp) },
-                    leadingIcon = {
-                        Icon(imageVector = Icons.Default.Search, contentDescription = "Search")
-                    },
-                    trailingIcon = {
+            // TOP SECTION: Full-width Search Bar with Integrated Scanner
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { viewModel.searchQuery.value = it },
+                placeholder = { Text("Search by name, barcode, SKU...", fontSize = 13.5.sp) },
+                leadingIcon = {
+                    Icon(imageVector = Icons.Default.Search, contentDescription = "Search", tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                },
+                trailingIcon = {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
                         if (searchQuery.isNotEmpty()) {
                             IconButton(onClick = { viewModel.searchQuery.value = "" }) {
                                 Icon(imageVector = Icons.Default.Clear, contentDescription = "Clear")
                             }
                         }
-                    },
-                    singleLine = true,
-                    colors = kiranaTextFieldColors(),
-                    shape = RoundedCornerShape(12.dp),
-                    modifier = Modifier
-                        .weight(1f)
-                        .testTag("inventory_search_field")
-                )
+                        IconButton(
+                            onClick = onOpenScanner,
+                            modifier = Modifier.testTag("inventory_scan_barcode_btn")
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.QrCodeScanner,
+                                contentDescription = "Scan Barcode",
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
+                },
+                singleLine = true,
+                colors = kiranaTextFieldColors(),
+                shape = RoundedCornerShape(14.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("inventory_search_field")
+            )
 
-                Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
-                // Barcode Scanner Action
-                IconButton(
-                    onClick = onOpenScanner,
-                    modifier = Modifier
-                        .size(48.dp)
-                        .background(MaterialTheme.colorScheme.primaryContainer, RoundedCornerShape(12.dp))
-                        .testTag("inventory_scan_barcode_btn")
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.QrCodeScanner,
-                        contentDescription = "Scan Barcode",
-                        tint = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
-                }
-
-                Spacer(modifier = Modifier.width(8.dp))
-
-                // Add Product Action in Top Row
+            // Action Row: Add Product & Export CSV
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
                 Button(
                     onClick = { onOpenAddProduct(null) },
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(12.dp),
-                    modifier = Modifier
-                        .height(48.dp)
-                        .testTag("inventory_add_product_btn")
+                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 10.dp),
+                    modifier = Modifier.testTag("inventory_add_product_btn")
                 ) {
                     Icon(imageVector = Icons.Default.Add, contentDescription = "Add Product", modifier = Modifier.size(18.dp))
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text("Add", fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text("Add Product", fontWeight = FontWeight.SemiBold, fontSize = 13.5.sp)
                 }
 
-                Spacer(modifier = Modifier.width(6.dp))
-
-                // Export CSV Option
-                IconButton(
+                OutlinedButton(
                     onClick = { viewModel.exportCsv(context) },
-                    modifier = Modifier
-                        .size(48.dp)
-                        .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(12.dp))
-                        .testTag("inventory_export_csv_btn")
+                    shape = RoundedCornerShape(12.dp),
+                    contentPadding = PaddingValues(horizontal = 14.dp, vertical = 10.dp),
+                    modifier = Modifier.testTag("inventory_export_csv_btn")
                 ) {
                     Icon(
                         imageVector = Icons.Default.TableView,
                         contentDescription = "Export Excel CSV",
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        modifier = Modifier.size(16.dp)
                     )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text("Export CSV", fontSize = 12.5.sp)
                 }
             }
 
@@ -395,7 +387,7 @@ fun InventoryScreen(
                         modifier = Modifier.fillMaxSize(),
                         verticalArrangement = Arrangement.spacedBy(10.dp),
                         horizontalArrangement = Arrangement.spacedBy(10.dp),
-                        contentPadding = PaddingValues(bottom = 88.dp)
+                        contentPadding = PaddingValues(bottom = 110.dp)
                     ) {
                         items(sortedProducts, key = { it.id }) { product ->
                             ProductCard(

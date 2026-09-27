@@ -2,85 +2,130 @@ package com.example.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Light Scheme Colors - Signature Grocery Shop Orange Theme
-val KiranaPrimaryLight = Color(0xFFFF5E00)
-val KiranaOnPrimaryLight = Color(0xFFFFFFFF)
-val KiranaPrimaryContainerLight = Color(0xFFFFE8DC)
-val KiranaOnPrimaryContainerLight = Color(0xFF4A1800)
+// ==========================================
+// Modern Retail Theme Palettes
+// ==========================================
 
-val KiranaSecondaryLight = Color(0xFF10B981)
+// 1. Fresh Emerald Retail (Default - Clean, modern, trustworthy)
+val EmeraldPrimary = Color(0xFF0F766E)
+val EmeraldPrimaryDark = Color(0xFF2DD4BF)
+val EmeraldContainer = Color(0xFFCCFBF1)
+val EmeraldOnContainer = Color(0xFF134E4A)
+val EmeraldContainerDark = Color(0xFF115E59)
+val EmeraldOnContainerDark = Color(0xFFCCFBF1)
+
+// 2. Classic Kirana (Warm Terracotta / Saffron - Indian retail warm vibe without harsh neon)
+val SaffronPrimary = Color(0xFFC2410C)
+val SaffronPrimaryDark = Color(0xFFFB923C)
+val SaffronContainer = Color(0xFFFFEDD5)
+val SaffronOnContainer = Color(0xFF7C2D12)
+val SaffronContainerDark = Color(0xFF9A3412)
+val SaffronOnContainerDark = Color(0xFFFFEDD5)
+
+// 3. Royal Sapphire (Deep Tech Navy / Blue - FinTech POS style)
+val SapphirePrimary = Color(0xFF1D4ED8)
+val SapphirePrimaryDark = Color(0xFF60A5FA)
+val SapphireContainer = Color(0xFFDBEAFE)
+val SapphireOnContainer = Color(0xFF1E3A8A)
+val SapphireContainerDark = Color(0xFF1E40AF)
+val SapphireOnContainerDark = Color(0xFFDBEAFE)
+
+// 4. Modern Violet (Royal Purple - Boutique / Fashion / Premium grocery)
+val VioletPrimary = Color(0xFF6D28D9)
+val VioletPrimaryDark = Color(0xFFA78BFA)
+val VioletContainer = Color(0xFFEDE9FE)
+val VioletOnContainer = Color(0xFF4C1D95)
+val VioletContainerDark = Color(0xFF5B21B6)
+val VioletOnContainerDark = Color(0xFFEDE9FE)
+
+// ==========================================
+// Light Theme Backgrounds & Neutrals
+// ==========================================
+val KiranaBackgroundLight = Color(0xFFF8FAFC) // Crisp, modern, clean slate 50
+val KiranaOnBackgroundLight = Color(0xFF0F172A) // Deep slate 900
+val KiranaSurfaceLight = Color(0xFFFFFFFF) // Pure elevated white
+val KiranaOnSurfaceLight = Color(0xFF0F172A)
+val KiranaSurfaceVariantLight = Color(0xFFF1F5F9) // Slate 100
+val KiranaOnSurfaceVariantLight = Color(0xFF475569) // Slate 600
+val KiranaOutlineLight = Color(0xFFCBD5E1) // Slate 300
+val KiranaOutlineVariantLight = Color(0xFFE2E8F0) // Slate 200
+
+// ==========================================
+// Dark Theme Backgrounds & Neutrals
+// ==========================================
+val KiranaBackgroundDark = Color(0xFF0F172A) // Clean, modern dark slate 900
+val KiranaOnBackgroundDark = Color(0xFFF8FAFC) // Slate 50 crisp high-contrast
+val KiranaSurfaceDark = Color(0xFF1E293B) // Elevated card surface Slate 800
+val KiranaOnSurfaceDark = Color(0xFFF8FAFC) // Pure readable text Slate 50
+val KiranaSurfaceVariantDark = Color(0xFF334155) // Slate 700
+val KiranaOnSurfaceVariantDark = Color(0xFFCBD5E1) // Slate 300
+val KiranaOutlineDark = Color(0xFF475569) // Slate 600
+val KiranaOutlineVariantDark = Color(0xFF334155) // Slate 700
+
+// Shared Secondary & Feedback
+val KiranaSecondaryLight = Color(0xFF0284C7)
 val KiranaOnSecondaryLight = Color(0xFFFFFFFF)
-val KiranaSecondaryContainerLight = Color(0xFFD1FAE5)
-val KiranaOnSecondaryContainerLight = Color(0xFF064E3B)
+val KiranaSecondaryContainerLight = Color(0xFFE0F2FE)
+val KiranaOnSecondaryContainerLight = Color(0xFF0369A1)
 
-val KiranaTertiaryLight = Color(0xFF2563EB)
-val KiranaOnTertiaryLight = Color(0xFFFFFFFF)
-val KiranaTertiaryContainerLight = Color(0xFFDBEAFE)
-val KiranaOnTertiaryContainerLight = Color(0xFF1E3A8A)
+val KiranaSecondaryDark = Color(0xFF38BDF8)
+val KiranaOnSecondaryDark = Color(0xFF082F49)
+val KiranaSecondaryContainerDark = Color(0xFF0369A1)
+val KiranaOnSecondaryContainerDark = Color(0xFFE0F2FE)
 
-val KiranaErrorLight = Color(0xFFEF4444)
+val KiranaErrorLight = Color(0xFFDC2626)
 val KiranaOnErrorLight = Color(0xFFFFFFFF)
 val KiranaErrorContainerLight = Color(0xFFFEE2E2)
-val KiranaOnErrorContainerLight = Color(0xFF7F1D1D)
+val KiranaOnErrorContainerLight = Color(0xFF991B1B)
 
-val KiranaBackgroundLight = Color(0xFFF8FAFC)
-val KiranaOnBackgroundLight = Color(0xFF0F172A)
-val KiranaSurfaceLight = Color(0xFFFFFFFF)
-val KiranaOnSurfaceLight = Color(0xFF0F172A)
-val KiranaSurfaceVariantLight = Color(0xFFF1F5F9)
-val KiranaOnSurfaceVariantLight = Color(0xFF334155)
-val KiranaOutlineLight = Color(0xFF94A3B8)
-
-// Dark Scheme Colors
-val KiranaPrimaryDark = Color(0xFFFF8A50)
-val KiranaOnPrimaryDark = Color(0xFF4A1800)
-val KiranaPrimaryContainerDark = Color(0xFFE05300)
-val KiranaOnPrimaryContainerDark = Color(0xFFFFE8DC)
-
-val KiranaSecondaryDark = Color(0xFF34D399)
-val KiranaOnSecondaryDark = Color(0xFF064E3B)
-val KiranaSecondaryContainerDark = Color(0xFF059669)
-val KiranaOnSecondaryContainerDark = Color(0xFFD1FAE5)
-
-val KiranaTertiaryDark = Color(0xFF60A5FA)
-val KiranaOnTertiaryDark = Color(0xFF1E3A8A)
-val KiranaTertiaryContainerDark = Color(0xFF1D4ED8)
-val KiranaOnTertiaryContainerDark = Color(0xFFDBEAFE)
-
-val KiranaErrorDark = Color(0xFFF87171)
-val KiranaOnErrorDark = Color(0xFF7F1D1D)
-val KiranaErrorContainerDark = Color(0xFF991B1B)
+val KiranaErrorDark = Color(0xFFEF4444)
+val KiranaOnErrorDark = Color(0xFFFFFFFF)
+val KiranaErrorContainerDark = Color(0xFF7F1D1D)
 val KiranaOnErrorContainerDark = Color(0xFFFEE2E2)
 
-val KiranaBackgroundDark = Color(0xFF0F172A)
-val KiranaOnBackgroundDark = Color(0xFFF8FAFC)
-val KiranaSurfaceDark = Color(0xFF1E293B)
-val KiranaOnSurfaceDark = Color(0xFFF8FAFC)
-val KiranaSurfaceVariantDark = Color(0xFF334155)
-val KiranaOnSurfaceVariantDark = Color(0xFFE2E8F0)
-val KiranaOutlineDark = Color(0xFF64748B)
+// Backwards-compatible aliases
+val KiranaPrimaryLight = EmeraldPrimary
+val KiranaOnPrimaryLight = Color(0xFFFFFFFF)
+val KiranaPrimaryContainerLight = EmeraldContainer
+val KiranaOnPrimaryContainerLight = EmeraldOnContainer
 
-// Grocery Shop Signature Colors & Card Metrics
-val GroceryOrange = Color(0xFFFF5E00)
-val GroceryOrangeDark = Color(0xFFE05300)
-val GroceryOrangeLight = Color(0xFFFF8A50)
-val GroceryNavy = Color(0xFF0D1B2A)
-val GroceryNavyDark = Color(0xFF09121C)
-val GroceryGreen = Color(0xFF10B981)
+val KiranaPrimaryDark = EmeraldPrimaryDark
+val KiranaOnPrimaryDark = Color(0xFF042F2E)
+val KiranaPrimaryContainerDark = EmeraldContainerDark
+val KiranaOnPrimaryContainerDark = EmeraldOnContainerDark
 
-val MetricProductsGreen = Color(0xFF10B981)
-val MetricStockBlue = Color(0xFF2563EB)
-val MetricSalesOrange = Color(0xFFFF5E00)
-val MetricCustomersPurple = Color(0xFF8B5CF6)
-val MetricCyan = Color(0xFF06B6D4)
-val MetricRed = Color(0xFFEF4444)
+val KiranaTertiaryLight = Color(0xFFD97706)
+val KiranaOnTertiaryLight = Color(0xFFFFFFFF)
+val KiranaTertiaryContainerLight = Color(0xFFFEF3C7)
+val KiranaOnTertiaryContainerLight = Color(0xFF78350F)
+
+val KiranaTertiaryDark = Color(0xFFFBBF24)
+val KiranaOnTertiaryDark = Color(0xFF451A03)
+val KiranaTertiaryContainerDark = Color(0xFF92400E)
+val KiranaOnTertiaryContainerDark = Color(0xFFFEF3C7)
+
+// Grocery Shop Accent Colors
+val GroceryOrange = EmeraldPrimary // Replaced harsh neon orange with elegant primary
+val GroceryOrangeDark = Color(0xFF0F766E)
+val GroceryOrangeLight = Color(0xFF2DD4BF)
+val GroceryNavy = Color(0xFF0B132B)
+val GroceryNavyDark = Color(0xFF060B18)
+val GroceryGreen = Color(0xFF059669)
+
+// Metric Card Colors
+val MetricProductsGreen = Color(0xFF059669)
+val MetricStockBlue = Color(0xFF0284C7)
+val MetricSalesOrange = Color(0xFFD97706)
+val MetricCustomersPurple = Color(0xFF7C3AED)
+val MetricCyan = Color(0xFF0D9488)
+val MetricRed = Color(0xFFDC2626)
 
 // Custom semantic badge colors
-val LowStockAlertColor = Color(0xFFEF4444)
-val LowStockAlertContainer = Color(0xFFFEE2E2)
+val LowStockAlertColor = Color(0xFFD97706)
+val LowStockAlertContainer = Color(0xFFFEF3C7)
 val OutOfStockAlertColor = Color(0xFFDC2626)
 val OutOfStockAlertContainer = Color(0xFFFEE2E2)
-val InStockColor = Color(0xFF10B981)
+val InStockColor = Color(0xFF059669)
 val InStockContainer = Color(0xFFD1FAE5)
 val UpiPurple = Color(0xFF7C3AED)
 val WhatsAppGreen = Color(0xFF25D366)

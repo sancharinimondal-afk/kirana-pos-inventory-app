@@ -71,6 +71,23 @@ class KiranaViewModel(
     private val _shopSettings = MutableStateFlow(ShopSettings())
     val shopSettings: StateFlow<ShopSettings> = _shopSettings.asStateFlow()
 
+    // App Theme & Appearance State
+    private val _themeMode = MutableStateFlow(context?.let { com.example.data.BillingSettingsManager.getThemeMode(it) } ?: "SYSTEM")
+    val themeMode: StateFlow<String> = _themeMode.asStateFlow()
+
+    private val _colorPalette = MutableStateFlow(context?.let { com.example.data.BillingSettingsManager.getColorPalette(it) } ?: "EMERALD")
+    val colorPalette: StateFlow<String> = _colorPalette.asStateFlow()
+
+    fun setThemeMode(mode: String) {
+        _themeMode.value = mode
+        context?.let { com.example.data.BillingSettingsManager.setThemeMode(it, mode) }
+    }
+
+    fun setColorPalette(palette: String) {
+        _colorPalette.value = palette
+        context?.let { com.example.data.BillingSettingsManager.setColorPalette(it, palette) }
+    }
+
     init {
         refreshAutoBackupState()
         // Demo products must NEVER automatically enter real inventory.

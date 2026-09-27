@@ -4,6 +4,7 @@ import android.content.Intent
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -42,6 +43,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -72,8 +74,8 @@ import com.example.backup.BackupManager
 import com.example.backup.BackupValidationResult
 import com.example.ui.KiranaViewModel
 import com.example.ui.theme.GroceryGreen
-import com.example.ui.theme.GroceryNavy
 import com.example.ui.theme.GroceryOrange
+import com.example.ui.theme.kiranaTextFieldColors
 import kotlinx.coroutines.launch
 import java.io.File
 import java.text.SimpleDateFormat
@@ -155,7 +157,7 @@ fun BackupRestoreScreen(
                 title = {
                     Text(
                         text = "Backup & Restore",
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontWeight = FontWeight.Bold,
                         fontSize = 19.sp
                     )
@@ -165,12 +167,14 @@ fun BackupRestoreScreen(
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back",
-                            tint = Color.White
+                            tint = MaterialTheme.colorScheme.onSurface
                         )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = GroceryNavy
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onSurface
                 )
             )
         }
@@ -179,7 +183,7 @@ fun BackupRestoreScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .background(Color(0xFFF8FAFC))
+                .background(MaterialTheme.colorScheme.background)
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp)
                 .testTag("backup_restore_screen"),
@@ -190,14 +194,15 @@ fun BackupRestoreScreen(
                 text = "1. AUTOMATIC DAILY BACKUP (LOCAL ONLY)",
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Bold,
-                color = GroceryNavy,
+                color = MaterialTheme.colorScheme.primary,
                 letterSpacing = 1.sp
             )
 
             Card(
                 shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
+                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
@@ -225,12 +230,12 @@ fun BackupRestoreScreen(
                                 text = "Daily Background Auto-Backup",
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 15.sp,
-                                color = Color(0xFF0F172A)
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                             Text(
                                 text = "Runs daily at 02:00 AM • Stored strictly on device",
                                 fontSize = 12.sp,
-                                color = Color(0xFF64748B)
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     }
@@ -239,11 +244,11 @@ fun BackupRestoreScreen(
                     Text(
                         text = "🔒 Zero Cloud Sync: Data remains 100% private on this device. Store data is never automatically uploaded to any cloud server.",
                         fontSize = 12.sp,
-                        color = Color(0xFF475569)
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
 
                     Spacer(modifier = Modifier.height(10.dp))
-                    HorizontalDivider(color = Color(0xFFF1F5F9))
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
                     Spacer(modifier = Modifier.height(10.dp))
 
                     Row(
@@ -251,7 +256,7 @@ fun BackupRestoreScreen(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("Current Schedule Status:", fontSize = 12.sp, color = Color(0xFF64748B))
+                        Text("Current Schedule Status:", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(imageVector = Icons.Default.CheckCircle, contentDescription = null, tint = GroceryGreen, modifier = Modifier.size(16.dp))
                             Spacer(modifier = Modifier.width(4.dp))
@@ -266,14 +271,15 @@ fun BackupRestoreScreen(
                 text = "2. MANUAL BACKUP",
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Bold,
-                color = GroceryNavy,
+                color = MaterialTheme.colorScheme.primary,
                 letterSpacing = 1.sp
             )
 
             Card(
                 shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
+                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(
@@ -283,7 +289,7 @@ fun BackupRestoreScreen(
                     Text(
                         text = "Create an instant snapshot of your entire shop catalog, sales history, customer khata, purchases, stock movements, and shop settings.",
                         fontSize = 13.sp,
-                        color = Color(0xFF475569)
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
 
                     // Standard Unencrypted Backup Button
@@ -314,7 +320,10 @@ fun BackupRestoreScreen(
                                 }
                             }
                         },
-                        colors = ButtonDefaults.buttonColors(containerColor = GroceryOrange),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary
+                        ),
                         shape = RoundedCornerShape(12.dp),
                         modifier = Modifier
                             .fillMaxWidth()
@@ -323,7 +332,7 @@ fun BackupRestoreScreen(
                     ) {
                         Icon(imageVector = Icons.Default.FolderZip, contentDescription = null, modifier = Modifier.size(18.dp))
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Create Local JSON Backup", fontWeight = FontWeight.Bold)
+                        Text("Create Local JSON Backup", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimary)
                     }
 
                     // Optional Password-Protected / Encrypted Backup Button
@@ -334,7 +343,7 @@ fun BackupRestoreScreen(
                             showExportPasswordDialog = true
                         },
                         shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.outlinedButtonColors(contentColor = GroceryNavy),
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.primary),
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(48.dp)
@@ -352,14 +361,15 @@ fun BackupRestoreScreen(
                 text = "3. RESTORE FROM BACKUP",
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Bold,
-                color = GroceryNavy,
+                color = MaterialTheme.colorScheme.primary,
                 letterSpacing = 1.sp
             )
 
             Card(
                 shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
+                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(
@@ -369,7 +379,7 @@ fun BackupRestoreScreen(
                     Text(
                         text = "Restore shop data from an existing backup JSON file. Previews complete counts and verifies integrity before replacing data. Atomic restore rolls back 100% on failure.",
                         fontSize = 13.sp,
-                        color = Color(0xFF475569)
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
 
                     OutlinedButton(
@@ -382,9 +392,9 @@ fun BackupRestoreScreen(
                             .height(48.dp)
                             .testTag("restore_select_file_btn")
                     ) {
-                        Icon(imageVector = Icons.Default.CloudDownload, contentDescription = null, tint = GroceryNavy, modifier = Modifier.size(18.dp))
+                        Icon(imageVector = Icons.Default.CloudDownload, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(18.dp))
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Select Backup File to Restore", fontWeight = FontWeight.Bold, color = GroceryNavy)
+                        Text("Select Backup File to Restore", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
                     }
                 }
             }
@@ -400,14 +410,14 @@ fun BackupRestoreScreen(
                 ) {
                     CircularProgressIndicator(
                         strokeWidth = 2.dp,
-                        color = GroceryOrange,
+                        color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(20.dp)
                     )
                     Spacer(modifier = Modifier.width(10.dp))
                     Text(
                         text = operationMessage ?: "Processing...",
                         fontSize = 13.sp,
-                        color = GroceryNavy,
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontWeight = FontWeight.Medium
                     )
                 }
@@ -421,13 +431,13 @@ fun BackupRestoreScreen(
             onDismissRequest = { showExportPasswordDialog = false },
             title = {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(imageVector = Icons.Default.Security, contentDescription = null, tint = GroceryNavy, modifier = Modifier.size(22.dp))
+                    Icon(imageVector = Icons.Default.Security, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(22.dp))
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = "Password-Protected Backup",
                         fontWeight = FontWeight.Bold,
                         fontSize = 17.sp,
-                        color = GroceryNavy
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
             },
@@ -436,13 +446,14 @@ fun BackupRestoreScreen(
                     Text(
                         text = "Set a secure password to encrypt your customer khata, sales records, and business data using AES-256-GCM.",
                         fontSize = 13.sp,
-                        color = Color(0xFF334155)
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     OutlinedTextField(
                         value = exportPasswordInput,
                         onValueChange = { exportPasswordInput = it },
                         label = { Text("Backup Password") },
                         placeholder = { Text("Enter password") },
+                        colors = kiranaTextFieldColors(),
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                         visualTransformation = if (exportPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
@@ -450,7 +461,8 @@ fun BackupRestoreScreen(
                             IconButton(onClick = { exportPasswordVisible = !exportPasswordVisible }) {
                                 Icon(
                                     imageVector = if (exportPasswordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                                    contentDescription = "Toggle password visibility"
+                                    contentDescription = "Toggle password visibility",
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
                         },
@@ -494,10 +506,13 @@ fun BackupRestoreScreen(
                             }
                         }
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = GroceryNavy),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    ),
                     modifier = Modifier.testTag("confirm_export_encrypted_btn")
                 ) {
-                    Text("Export Encrypted Backup", fontWeight = FontWeight.Bold)
+                    Text("Export Encrypted Backup", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimary)
                 }
             },
             dismissButton = {
@@ -518,13 +533,13 @@ fun BackupRestoreScreen(
             },
             title = {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(imageVector = Icons.Default.Lock, contentDescription = null, tint = GroceryOrange, modifier = Modifier.size(22.dp))
+                    Icon(imageVector = Icons.Default.Lock, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(22.dp))
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = "Encrypted Backup Detected",
                         fontWeight = FontWeight.Bold,
                         fontSize = 17.sp,
-                        color = GroceryNavy
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
             },
@@ -533,7 +548,7 @@ fun BackupRestoreScreen(
                     Text(
                         text = "This backup is password-protected. Enter the password to unlock and preview store contents before restore:",
                         fontSize = 13.sp,
-                        color = Color(0xFF334155)
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     OutlinedTextField(
                         value = decryptPasswordInput,
@@ -543,6 +558,7 @@ fun BackupRestoreScreen(
                         },
                         label = { Text("Password") },
                         placeholder = { Text("Enter backup password") },
+                        colors = kiranaTextFieldColors(),
                         singleLine = true,
                         isError = decryptError != null,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
@@ -551,7 +567,8 @@ fun BackupRestoreScreen(
                             IconButton(onClick = { decryptPasswordVisible = !decryptPasswordVisible }) {
                                 Icon(
                                     imageVector = if (decryptPasswordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                                    contentDescription = "Toggle password visibility"
+                                    contentDescription = "Toggle password visibility",
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
                         },
@@ -562,7 +579,7 @@ fun BackupRestoreScreen(
                     if (decryptError != null) {
                         Text(
                             text = decryptError!!,
-                            color = Color(0xFFDC2626),
+                            color = MaterialTheme.colorScheme.error,
                             fontSize = 12.sp,
                             fontWeight = FontWeight.SemiBold
                         )
@@ -588,10 +605,13 @@ fun BackupRestoreScreen(
                             decryptError = validation.errorMessage ?: "Incorrect password or corrupted backup"
                         }
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = GroceryNavy),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    ),
                     modifier = Modifier.testTag("unlock_backup_btn")
                 ) {
-                    Text("Unlock & Validate", fontWeight = FontWeight.Bold)
+                    Text("Unlock & Validate", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimary)
                 }
             },
             dismissButton = {
@@ -606,19 +626,6 @@ fun BackupRestoreScreen(
     }
 
     // MANDATORY RESTORE CONFIRMATION DIALOG PER PHASE 13 REQUIREMENTS
-    // Must show:
-    // - Backup date
-    // - Product count
-    // - Sales count
-    // - Purchase count
-    // - Customer count
-    // - File size
-    // - Database version
-    // Confirmation:
-    // "Restore will replace current store data."
-    // Buttons:
-    // CANCEL
-    // RESTORE
     if (pendingRestoreResult != null && pendingJsonContent != null) {
         val valResult = pendingRestoreResult!!
         AlertDialog(
@@ -637,52 +644,53 @@ fun BackupRestoreScreen(
                         text = "Confirm Database Restore",
                         fontWeight = FontWeight.Bold,
                         fontSize = 17.sp,
-                        color = GroceryNavy
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
             },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Card(
-                        colors = CardDefaults.cardColors(containerColor = Color(0xFFF1F5F9)),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
                         shape = RoundedCornerShape(10.dp),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                             // 1. Backup date
                             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                                Text("Backup date:", fontSize = 12.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Medium)
-                                Text(valResult.exportDate.ifBlank { "Unknown" }, fontSize = 12.sp, color = Color(0xFF0F172A), fontWeight = FontWeight.Bold)
+                                Text("Backup date:", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Medium)
+                                Text(valResult.exportDate.ifBlank { "Unknown" }, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold)
                             }
                             // 2. Product count
                             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                                Text("Product count:", fontSize = 12.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Medium)
-                                Text("${valResult.productCount}", fontSize = 12.sp, color = Color(0xFF0F172A), fontWeight = FontWeight.Bold)
+                                Text("Product count:", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Medium)
+                                Text("${valResult.productCount}", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold)
                             }
                             // 3. Sales count
                             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                                Text("Sales count:", fontSize = 12.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Medium)
-                                Text("${valResult.salesCount}", fontSize = 12.sp, color = Color(0xFF0F172A), fontWeight = FontWeight.Bold)
+                                Text("Sales count:", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Medium)
+                                Text("${valResult.salesCount}", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold)
                             }
                             // 4. Purchase count
                             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                                Text("Purchase count:", fontSize = 12.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Medium)
-                                Text("${valResult.purchaseCount}", fontSize = 12.sp, color = Color(0xFF0F172A), fontWeight = FontWeight.Bold)
+                                Text("Purchase count:", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Medium)
+                                Text("${valResult.purchaseCount}", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold)
                             }
                             // 5. Customer count
                             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                                Text("Customer count:", fontSize = 12.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Medium)
-                                Text("${valResult.customersCount}", fontSize = 12.sp, color = Color(0xFF0F172A), fontWeight = FontWeight.Bold)
+                                Text("Customer count:", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Medium)
+                                Text("${valResult.customersCount}", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold)
                             }
                             // 6. File size
                             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                                Text("File size:", fontSize = 12.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Medium)
-                                Text(valResult.fileSizeFormatted.ifBlank { BackupManager.formatFileSize(valResult.fileSizeBytes) }, fontSize = 12.sp, color = Color(0xFF0F172A), fontWeight = FontWeight.Bold)
+                                Text("File size:", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Medium)
+                                Text(valResult.fileSizeFormatted.ifBlank { BackupManager.formatFileSize(valResult.fileSizeBytes) }, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold)
                             }
                             // 7. Database version
                             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                                Text("Database version:", fontSize = 12.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Medium)
-                                Text("v${valResult.databaseVersion}", fontSize = 12.sp, color = Color(0xFF0F172A), fontWeight = FontWeight.Bold)
+                                Text("Database version:", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Medium)
+                                Text("v${valResult.databaseVersion}", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold)
                             }
                         }
                     }

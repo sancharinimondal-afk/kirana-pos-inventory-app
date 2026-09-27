@@ -4,6 +4,7 @@ import android.app.DatePickerDialog
 import android.content.Context
 import android.content.Intent
 import android.widget.Toast
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -80,7 +81,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.billing.ProfitCalculator
 import com.example.ui.KiranaViewModel
 import com.example.ui.theme.GroceryGreen
-import com.example.ui.theme.GroceryNavy
 import com.example.ui.theme.GroceryOrange
 import org.json.JSONArray
 import java.io.File
@@ -256,13 +256,13 @@ fun ReportsScreen(
                     Column {
                         Text(
                             text = "Business Reports & Profit",
-                            color = Color.White,
+                            color = MaterialTheme.colorScheme.onSurface,
                             fontWeight = FontWeight.Bold,
                             fontSize = 18.sp
                         )
                         Text(
                             text = "${periods[selectedTabIndex].title} • Cancelled bills excluded",
-                            color = Color(0xFFCBD5E1),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             fontSize = 11.sp
                         )
                     }
@@ -272,7 +272,7 @@ fun ReportsScreen(
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back",
-                            tint = Color.White
+                            tint = MaterialTheme.colorScheme.onSurface
                         )
                     }
                 },
@@ -292,11 +292,16 @@ fun ReportsScreen(
                         Icon(
                             imageVector = Icons.Default.FileDownload,
                             contentDescription = "Export CSV",
-                            tint = Color.White
+                            tint = MaterialTheme.colorScheme.onSurface
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = GroceryNavy)
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
+                    actionIconContentColor = MaterialTheme.colorScheme.onSurface
+                )
             )
         }
     ) { innerPadding ->
@@ -304,19 +309,19 @@ fun ReportsScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .background(Color(0xFFF8FAFC))
+                .background(MaterialTheme.colorScheme.background)
                 .testTag("reports_screen")
         ) {
             // Horizontal Scrollable Tabs: Today, Last 7 Days, This Month, Last Month, Custom Date Range
             ScrollableTabRow(
                 selectedTabIndex = selectedTabIndex,
-                containerColor = Color.White,
-                contentColor = GroceryOrange,
+                containerColor = MaterialTheme.colorScheme.surface,
+                contentColor = MaterialTheme.colorScheme.primary,
                 edgePadding = 12.dp,
                 indicator = { tabPositions ->
                     TabRowDefaults.SecondaryIndicator(
                         Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex]),
-                        color = GroceryOrange,
+                        color = MaterialTheme.colorScheme.primary,
                         height = 3.dp
                     )
                 },
@@ -330,7 +335,8 @@ fun ReportsScreen(
                             Text(
                                 text = periodType.title,
                                 fontWeight = if (selectedTabIndex == index) FontWeight.Bold else FontWeight.Medium,
-                                fontSize = 13.sp
+                                fontSize = 13.sp,
+                                color = if (selectedTabIndex == index) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         },
                         modifier = Modifier.testTag(periodType.tag)
@@ -342,7 +348,8 @@ fun ReportsScreen(
             if (periods[selectedTabIndex] == ReportPeriodType.CUSTOM) {
                 Card(
                     shape = RoundedCornerShape(0.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFFEFF6FF)),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Row(
@@ -356,7 +363,7 @@ fun ReportsScreen(
                             Icon(
                                 imageVector = Icons.Default.DateRange,
                                 contentDescription = null,
-                                tint = Color(0xFF1D4ED8),
+                                tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.size(18.dp)
                             )
                             Spacer(modifier = Modifier.width(6.dp))
@@ -364,7 +371,7 @@ fun ReportsScreen(
                                 text = "${dateFormatter.format(Date(customStartDate))} — ${dateFormatter.format(Date(customEndDate))}",
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFF1E3A8A)
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                         }
 
@@ -436,7 +443,8 @@ fun ReportsScreen(
                 item {
                     Card(
                         shape = RoundedCornerShape(18.dp),
-                        colors = CardDefaults.cardColors(containerColor = GroceryNavy),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.35f)),
                         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
                         modifier = Modifier.fillMaxWidth().testTag("report_hero_card")
                     ) {
@@ -450,7 +458,7 @@ fun ReportsScreen(
                                 Column {
                                     Text(
                                         text = "${periods[selectedTabIndex].title.uppercase()} FINANCIAL SUMMARY",
-                                        color = Color(0xFF94A3B8),
+                                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f),
                                         fontSize = 11.sp,
                                         fontWeight = FontWeight.Bold,
                                         letterSpacing = 0.5.sp
@@ -458,7 +466,7 @@ fun ReportsScreen(
                                     Spacer(modifier = Modifier.height(2.dp))
                                     Text(
                                         text = "₹ ${String.format(Locale.getDefault(), "%,.2f", periodReport.totalSales)}",
-                                        color = Color.White,
+                                        color = MaterialTheme.colorScheme.onPrimaryContainer,
                                         fontSize = 26.sp,
                                         fontWeight = FontWeight.ExtraBold,
                                         modifier = Modifier.testTag("report_total_sales")
@@ -492,7 +500,7 @@ fun ReportsScreen(
                             }
 
                             Spacer(modifier = Modifier.height(14.dp))
-                            HorizontalDivider(color = Color(0xFF334155))
+                            HorizontalDivider(color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.2f))
                             Spacer(modifier = Modifier.height(12.dp))
 
                             // Grid of Key Financials: Cost, Gross Profit, Bills, GST
@@ -501,10 +509,10 @@ fun ReportsScreen(
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 Column(modifier = Modifier.weight(1f)) {
-                                    Text("Cost of Goods (COGS)", color = Color(0xFF94A3B8), fontSize = 11.sp)
+                                    Text("Cost of Goods (COGS)", color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.75f), fontSize = 11.sp)
                                     Text(
                                         text = "₹ ${String.format(Locale.getDefault(), "%,.2f", periodReport.totalCost)}",
-                                        color = Color(0xFFE2E8F0),
+                                        color = MaterialTheme.colorScheme.onPrimaryContainer,
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 14.sp,
                                         modifier = Modifier.testTag("report_total_cost")
@@ -512,10 +520,10 @@ fun ReportsScreen(
                                 }
 
                                 Column(modifier = Modifier.weight(1f)) {
-                                    Text("Gross Profit", color = Color(0xFF94A3B8), fontSize = 11.sp)
+                                    Text("Gross Profit", color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.75f), fontSize = 11.sp)
                                     Text(
                                         text = "₹ ${String.format(Locale.getDefault(), "%,.2f", periodReport.totalGrossProfit)}",
-                                        color = if (periodReport.totalGrossProfit >= 0) Color(0xFF4ADE80) else Color(0xFFF87171),
+                                        color = if (periodReport.totalGrossProfit >= 0) Color(0xFF16A34A) else Color(0xFFDC2626),
                                         fontWeight = FontWeight.ExtraBold,
                                         fontSize = 15.sp,
                                         modifier = Modifier.testTag("report_gross_profit")
@@ -530,10 +538,10 @@ fun ReportsScreen(
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 Column(modifier = Modifier.weight(1f)) {
-                                    Text("Completed Bills", color = Color(0xFF94A3B8), fontSize = 11.sp)
+                                    Text("Completed Bills", color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.75f), fontSize = 11.sp)
                                     Text(
                                         text = "${periodReport.totalBills} bills",
-                                        color = Color.White,
+                                        color = MaterialTheme.colorScheme.onPrimaryContainer,
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 14.sp,
                                         modifier = Modifier.testTag("report_total_bills")
@@ -541,10 +549,10 @@ fun ReportsScreen(
                                 }
 
                                 Column(modifier = Modifier.weight(1f)) {
-                                    Text("Total GST Collected", color = Color(0xFF94A3B8), fontSize = 11.sp)
+                                    Text("Total GST Collected", color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.75f), fontSize = 11.sp)
                                     Text(
                                         text = "₹ ${String.format(Locale.getDefault(), "%,.2f", periodReport.totalGst)}",
-                                        color = Color(0xFF38BDF8),
+                                        color = MaterialTheme.colorScheme.onPrimaryContainer,
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 14.sp,
                                         modifier = Modifier.testTag("report_total_gst")
@@ -734,7 +742,7 @@ fun ReportsScreen(
                         text = "SALES AUDIT TRAIL (${periodReport.salesBreakdown.size} Bills)",
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
-                        color = GroceryNavy,
+                        color = MaterialTheme.colorScheme.onBackground,
                         letterSpacing = 0.6.sp,
                         modifier = Modifier.padding(start = 2.dp, top = 4.dp)
                     )
@@ -744,14 +752,15 @@ fun ReportsScreen(
                     item {
                         Card(
                             shape = RoundedCornerShape(12.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color.White),
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Box(modifier = Modifier.padding(20.dp).fillMaxWidth(), contentAlignment = Alignment.Center) {
                                 Text(
                                     text = "No non-cancelled sales found in this period.",
                                     fontSize = 13.sp,
-                                    color = Color(0xFF64748B)
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
                         }
@@ -760,7 +769,8 @@ fun ReportsScreen(
                     items(periodReport.salesBreakdown.reversed()) { sale ->
                         Card(
                             shape = RoundedCornerShape(12.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color.White),
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
                             elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
                             modifier = Modifier.fillMaxWidth().testTag("sale_breakdown_${sale.invoiceNumber}")
                         ) {
@@ -774,7 +784,7 @@ fun ReportsScreen(
                                         Icon(
                                             imageVector = Icons.AutoMirrored.Filled.ReceiptLong,
                                             contentDescription = null,
-                                            tint = GroceryNavy,
+                                            tint = MaterialTheme.colorScheme.primary,
                                             modifier = Modifier.size(16.dp)
                                         )
                                         Spacer(modifier = Modifier.width(6.dp))
@@ -782,7 +792,7 @@ fun ReportsScreen(
                                             text = sale.invoiceNumber,
                                             fontSize = 13.sp,
                                             fontWeight = FontWeight.Bold,
-                                            color = GroceryNavy
+                                            color = MaterialTheme.colorScheme.onSurface
                                         )
                                     }
 
@@ -814,11 +824,11 @@ fun ReportsScreen(
                                 Text(
                                     text = SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault()).format(Date(sale.timestamp)),
                                     fontSize = 11.sp,
-                                    color = Color(0xFF94A3B8)
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
 
                                 Spacer(modifier = Modifier.height(8.dp))
-                                HorizontalDivider(color = Color(0xFFF1F5F9))
+                                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
                                 Spacer(modifier = Modifier.height(8.dp))
 
                                 Row(
@@ -826,27 +836,27 @@ fun ReportsScreen(
                                     horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
                                     Column {
-                                        Text("Revenue (Net)", fontSize = 10.sp, color = Color(0xFF64748B))
+                                        Text("Revenue (Net)", fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                         Text(
                                             text = "₹ ${String.format(Locale.getDefault(), "%,.2f", sale.revenue)}",
                                             fontSize = 13.sp,
                                             fontWeight = FontWeight.Bold,
-                                            color = GroceryNavy
+                                            color = MaterialTheme.colorScheme.onSurface
                                         )
                                     }
 
                                     Column {
-                                        Text("Cost (Historical)", fontSize = 10.sp, color = Color(0xFF64748B))
+                                        Text("Cost (Historical)", fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                         Text(
                                             text = "₹ ${String.format(Locale.getDefault(), "%,.2f", sale.cost)}",
                                             fontSize = 13.sp,
                                             fontWeight = FontWeight.Medium,
-                                            color = Color(0xFF475569)
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
                                     }
 
                                     Column(horizontalAlignment = Alignment.End) {
-                                        Text("Gross Profit", fontSize = 10.sp, color = Color(0xFF64748B))
+                                        Text("Gross Profit", fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                         Text(
                                             text = "₹ ${String.format(Locale.getDefault(), "%,.2f", sale.grossProfit)}",
                                             fontSize = 13.sp,
@@ -873,7 +883,10 @@ fun ReportsScreen(
                                 }
                             }
                         },
-                        colors = ButtonDefaults.buttonColors(containerColor = GroceryOrange),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary
+                        ),
                         shape = RoundedCornerShape(12.dp),
                         modifier = Modifier
                             .fillMaxWidth()
@@ -886,7 +899,7 @@ fun ReportsScreen(
                             text = "Export Detailed Sales CSV",
                             fontWeight = FontWeight.Bold,
                             fontSize = 15.sp,
-                            color = Color.White
+                            color = MaterialTheme.colorScheme.onPrimary
                         )
                     }
                 }
@@ -904,7 +917,7 @@ fun ReportsScreen(
                     text = "Report Exported Successfully",
                     fontWeight = FontWeight.Bold,
                     fontSize = 17.sp,
-                    color = GroceryNavy
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             },
             text = {
@@ -912,17 +925,17 @@ fun ReportsScreen(
                     Text(
                         text = "Your sales and profit audit CSV has been exported:",
                         fontSize = 13.sp,
-                        color = Color(0xFF334155)
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Surface(
-                        color = Color(0xFFF1F5F9),
+                        color = MaterialTheme.colorScheme.surfaceVariant,
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(
                             text = file.absolutePath,
                             fontSize = 11.sp,
-                            color = Color(0xFF0F172A),
+                            color = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.padding(10.dp)
                         )
                     }
@@ -934,7 +947,10 @@ fun ReportsScreen(
                         shareReportFile(context, file)
                         showExportDialog = false
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = GroceryNavy)
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    )
                 ) {
                     Icon(imageVector = Icons.Default.Share, contentDescription = null, modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(6.dp))

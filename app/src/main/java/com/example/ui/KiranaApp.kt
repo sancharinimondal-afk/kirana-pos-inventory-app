@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -104,7 +105,7 @@ import kotlinx.coroutines.launch
 
 sealed class KiranaScreen(val route: String, val title: String, val icon: ImageVector) {
     object Dashboard : KiranaScreen("dashboard", "Dashboard", Icons.Default.Dashboard)
-    object Pos : KiranaScreen("pos", "Sales", Icons.Default.ShoppingCart)
+    object Pos : KiranaScreen("pos", "Sales", Icons.Default.PointOfSale)
     object Inventory : KiranaScreen("inventory", "Products", Icons.Default.Inventory2)
     object Transactions : KiranaScreen("transactions", "Bills", Icons.AutoMirrored.Filled.ReceiptLong)
     object Purchase : KiranaScreen("purchase", "Purchase", Icons.Default.ShoppingCart)
@@ -217,27 +218,27 @@ fun KiranaApp(
         gesturesEnabled = !isFullscreenScreen,
         drawerContent = {
             ModalDrawerSheet(
-                drawerContainerColor = Color.White,
+                drawerContainerColor = MaterialTheme.colorScheme.surface,
                 modifier = Modifier.width(300.dp)
             ) {
                 // Header with Shop Info
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(GroceryOrange)
+                        .background(MaterialTheme.colorScheme.primary)
                         .padding(20.dp)
                 ) {
                     Column {
                         Surface(
                             shape = CircleShape,
-                            color = Color.White,
+                            color = MaterialTheme.colorScheme.surface,
                             modifier = Modifier.size(54.dp)
                         ) {
                             Box(contentAlignment = Alignment.Center) {
                                 Icon(
                                     imageVector = Icons.Default.Storefront,
                                     contentDescription = null,
-                                    tint = GroceryOrange,
+                                    tint = MaterialTheme.colorScheme.primary,
                                     modifier = Modifier.size(32.dp)
                                 )
                             }
@@ -247,12 +248,12 @@ fun KiranaApp(
                             text = shopSettings.shopName,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color.White
+                            color = MaterialTheme.colorScheme.onPrimary
                         )
                         Text(
                             text = "Owner: ${shopSettings.ownerName.ifBlank { "Rahul Kumar" }}",
                             fontSize = 13.sp,
-                            color = Color.White.copy(alpha = 0.9f)
+                            color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.9f)
                         )
                     }
                 }
@@ -290,13 +291,13 @@ fun KiranaApp(
                                         Spacer(modifier = Modifier.weight(1f))
                                         Surface(
                                             shape = CircleShape,
-                                            color = LowStockAlertColor,
+                                            color = MaterialTheme.colorScheme.error,
                                             modifier = Modifier.size(20.dp)
                                         ) {
                                             Box(contentAlignment = Alignment.Center) {
                                                 Text(
                                                     text = totalLowStockCount.toString(),
-                                                    color = Color.White,
+                                                    color = MaterialTheme.colorScheme.onError,
                                                     fontSize = 11.sp,
                                                     fontWeight = FontWeight.Bold
                                                 )
@@ -309,14 +310,14 @@ fun KiranaApp(
                                 Icon(
                                     imageVector = screen.icon,
                                     contentDescription = screen.title,
-                                    tint = if (isSelected) GroceryOrange else Color(0xFF64748B)
+                                    tint = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             },
                             selected = isSelected,
                             colors = NavigationDrawerItemDefaults.colors(
-                                selectedContainerColor = Color(0xFFFFE8DC),
-                                selectedTextColor = GroceryOrange,
-                                unselectedTextColor = Color(0xFF1E293B)
+                                selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                selectedTextColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                unselectedTextColor = MaterialTheme.colorScheme.onSurface
                             ),
                             onClick = {
                                 coroutineScope.launch { drawerState.close() }
@@ -365,175 +366,196 @@ fun KiranaApp(
     ) {
         Scaffold(
             modifier = modifier.fillMaxSize(),
+            containerColor = MaterialTheme.colorScheme.background,
+            contentColor = MaterialTheme.colorScheme.onBackground,
             snackbarHost = { SnackbarHost(snackbarHostState) },
             topBar = {
                 if (!isFullscreenScreen) {
-                    CenterAlignedTopAppBar(
-                        title = {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(
-                                    text = if (currentRoute == KiranaScreen.Dashboard.route) shopSettings.shopName else when (currentRoute) {
-                                        KiranaScreen.Pos.route -> "New Sale"
-                                        KiranaScreen.Inventory.route -> "Products"
-                                        KiranaScreen.Purchase.route -> "Purchase Entry"
-                                        KiranaScreen.Reports.route -> "Reports & Analytics"
-                                        KiranaScreen.StockAlert.route -> "Stock Alert"
-                                        KiranaScreen.Backup.route -> "Backup & Restore"
-                                        KiranaScreen.Transactions.route -> "Bills History"
-                                        KiranaScreen.Settings.route -> "Shop Settings"
-                                        else -> shopSettings.shopName
-                                    },
-                                    fontSize = 17.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.White
-                                )
-                            }
-                        },
-                        navigationIcon = {
-                            if (currentRoute == KiranaScreen.Dashboard.route) {
-                                IconButton(
-                                    onClick = {
-                                        coroutineScope.launch { drawerState.open() }
-                                    },
-                                    modifier = Modifier.testTag("topbar_drawer_button")
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Menu,
-                                        contentDescription = "Open Drawer",
-                                        tint = Color.White
+                    Column {
+                        CenterAlignedTopAppBar(
+                            title = {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text(
+                                        text = if (currentRoute == KiranaScreen.Dashboard.route) shopSettings.shopName else when (currentRoute) {
+                                            KiranaScreen.Pos.route -> "New Sale"
+                                            KiranaScreen.Inventory.route -> "Products"
+                                            KiranaScreen.Purchase.route -> "Purchase Entry"
+                                            KiranaScreen.Reports.route -> "Reports & Analytics"
+                                            KiranaScreen.StockAlert.route -> "Stock Alert"
+                                            KiranaScreen.Backup.route -> "Backup & Restore"
+                                            KiranaScreen.Transactions.route -> "Bills History"
+                                            KiranaScreen.Settings.route -> "Shop Settings"
+                                            else -> shopSettings.shopName
+                                        },
+                                        fontSize = 17.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onSurface
                                     )
                                 }
-                            } else {
-                                IconButton(
-                                    onClick = {
-                                        navController.navigate(KiranaScreen.Dashboard.route) {
-                                            popUpTo(navController.graph.findStartDestination().id) {
-                                                saveState = true
-                                            }
-                                            launchSingleTop = true
-                                        }
-                                    },
-                                    modifier = Modifier.testTag("topbar_back_button")
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                        contentDescription = "Back",
-                                        tint = Color.White
-                                    )
-                                }
-                            }
-                        },
-                        actions = {
-                            // Barcode Scanner Top Action
-                            IconButton(
-                                onClick = { showScannerDialog = true },
-                                modifier = Modifier.testTag("topbar_scanner_button")
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.QrCodeScanner,
-                                    contentDescription = "Scan Barcode",
-                                    tint = Color.White
-                                )
-                            }
-
-                            // Notification Bell (Stock Alert) with Red Badge
-                            IconButton(
-                                onClick = {
-                                    navController.navigate(KiranaScreen.StockAlert.route)
-                                },
-                                modifier = Modifier.testTag("topbar_notification_bell")
-                            ) {
-                                BadgedBox(
-                                    badge = {
-                                        if (totalLowStockCount > 0) {
-                                            Badge(
-                                                containerColor = Color(0xFFEF4444),
-                                                contentColor = Color.White
-                                            ) {
-                                                Text(totalLowStockCount.toString(), fontSize = 9.sp, fontWeight = FontWeight.Bold)
-                                            }
-                                        }
+                            },
+                            navigationIcon = {
+                                if (currentRoute == KiranaScreen.Dashboard.route) {
+                                    IconButton(
+                                        onClick = {
+                                            coroutineScope.launch { drawerState.open() }
+                                        },
+                                        modifier = Modifier.testTag("topbar_drawer_button")
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Menu,
+                                            contentDescription = "Open Drawer",
+                                            tint = MaterialTheme.colorScheme.onSurface
+                                        )
                                     }
+                                } else {
+                                    IconButton(
+                                        onClick = {
+                                            navController.navigate(KiranaScreen.Dashboard.route) {
+                                                popUpTo(navController.graph.findStartDestination().id) {
+                                                    saveState = true
+                                                }
+                                                launchSingleTop = true
+                                            }
+                                        },
+                                        modifier = Modifier.testTag("topbar_back_button")
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                            contentDescription = "Back",
+                                            tint = MaterialTheme.colorScheme.onSurface
+                                        )
+                                    }
+                                }
+                            },
+                            actions = {
+                                // Barcode Scanner Top Action
+                                IconButton(
+                                    onClick = { showScannerDialog = true },
+                                    modifier = Modifier.testTag("topbar_scanner_button")
                                 ) {
                                     Icon(
-                                        imageVector = Icons.Default.Notifications,
-                                        contentDescription = "Stock Alert Notifications",
-                                        tint = Color.White
+                                        imageVector = Icons.Default.QrCodeScanner,
+                                        contentDescription = "Scan Barcode",
+                                        tint = MaterialTheme.colorScheme.primary
                                     )
                                 }
-                            }
-                        },
-                        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                            containerColor = GroceryOrange,
-                            titleContentColor = Color.White
+
+                                // Notification Bell (Stock Alert) with Red Badge
+                                IconButton(
+                                    onClick = {
+                                        navController.navigate(KiranaScreen.StockAlert.route)
+                                    },
+                                    modifier = Modifier.testTag("topbar_notification_bell")
+                                ) {
+                                    BadgedBox(
+                                        badge = {
+                                            if (totalLowStockCount > 0) {
+                                                Badge(
+                                                    containerColor = MaterialTheme.colorScheme.error,
+                                                    contentColor = MaterialTheme.colorScheme.onError
+                                                ) {
+                                                    Text(totalLowStockCount.toString(), fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                                                }
+                                            }
+                                        }
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Notifications,
+                                            contentDescription = "Stock Alert Notifications",
+                                            tint = MaterialTheme.colorScheme.onSurface
+                                        )
+                                    }
+                                }
+                            },
+                            colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                                containerColor = MaterialTheme.colorScheme.surface,
+                                titleContentColor = MaterialTheme.colorScheme.onSurface,
+                                navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
+                                actionIconContentColor = MaterialTheme.colorScheme.onSurface
+                            )
                         )
-                    )
+                        HorizontalDivider(
+                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.45f),
+                            thickness = 1.dp
+                        )
+                    }
                 }
             },
             bottomBar = {
                 if (!isFullscreenScreen) {
-                    NavigationBar(
-                        containerColor = Color.White,
-                        tonalElevation = 8.dp,
-                        modifier = Modifier.testTag("bottom_nav_bar")
-                    ) {
-                        bottomNavItems.forEach { screen ->
-                            val isSelected = currentRoute == screen.route
-                            NavigationBarItem(
-                                selected = isSelected,
-                                onClick = {
-                                    navController.navigate(screen.route) {
-                                        popUpTo(navController.graph.findStartDestination().id) {
-                                            saveState = true
-                                        }
-                                        launchSingleTop = true
-                                        restoreState = true
-                                    }
-                                },
-                                icon = {
-                                    if (screen == KiranaScreen.Pos && cartItems.isNotEmpty()) {
-                                        BadgedBox(
-                                            badge = {
-                                                Badge(
-                                                    containerColor = GroceryOrange,
-                                                    contentColor = Color.White
-                                                ) {
-                                                    Text(cartItems.size.toString())
-                                                }
+                    Column {
+                        HorizontalDivider(
+                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+                            thickness = 1.dp
+                        )
+                        NavigationBar(
+                            containerColor = MaterialTheme.colorScheme.surface,
+                            tonalElevation = 0.dp,
+                            modifier = Modifier
+                                .testTag("bottom_nav_bar")
+                                .navigationBarsPadding()
+                        ) {
+                            bottomNavItems.forEach { screen ->
+                                val isSelected = currentRoute == screen.route
+                                NavigationBarItem(
+                                    selected = isSelected,
+                                    onClick = {
+                                        navController.navigate(screen.route) {
+                                            popUpTo(navController.graph.findStartDestination().id) {
+                                                saveState = true
                                             }
-                                        ) {
+                                            launchSingleTop = true
+                                            restoreState = true
+                                        }
+                                    },
+                                    icon = {
+                                        if (screen == KiranaScreen.Pos && cartItems.isNotEmpty()) {
+                                            BadgedBox(
+                                                badge = {
+                                                    Badge(
+                                                        containerColor = MaterialTheme.colorScheme.primary,
+                                                        contentColor = MaterialTheme.colorScheme.onPrimary
+                                                    ) {
+                                                        Text(cartItems.size.toString())
+                                                    }
+                                                }
+                                            ) {
+                                                Icon(imageVector = screen.icon, contentDescription = screen.title)
+                                            }
+                                        } else if (screen == KiranaScreen.Inventory && totalLowStockCount > 0) {
+                                            BadgedBox(
+                                                badge = {
+                                                    Badge(
+                                                        containerColor = MaterialTheme.colorScheme.error,
+                                                        contentColor = MaterialTheme.colorScheme.onError
+                                                    ) {
+                                                        Text(totalLowStockCount.toString())
+                                                    }
+                                                }
+                                            ) {
+                                                Icon(imageVector = screen.icon, contentDescription = screen.title)
+                                            }
+                                        } else {
                                             Icon(imageVector = screen.icon, contentDescription = screen.title)
                                         }
-                                    } else if (screen == KiranaScreen.Inventory && totalLowStockCount > 0) {
-                                        BadgedBox(
-                                            badge = {
-                                                Badge(containerColor = LowStockAlertColor) {
-                                                    Text(totalLowStockCount.toString())
-                                                }
-                                            }
-                                        ) {
-                                            Icon(imageVector = screen.icon, contentDescription = screen.title)
-                                        }
-                                    } else {
-                                        Icon(imageVector = screen.icon, contentDescription = screen.title)
-                                    }
-                                },
-                                label = {
-                                    Text(
-                                        text = screen.title,
-                                        fontSize = 11.sp,
-                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
-                                    )
-                                },
-                                colors = NavigationBarItemDefaults.colors(
-                                    selectedIconColor = GroceryOrange,
-                                    selectedTextColor = GroceryOrange,
-                                    indicatorColor = Color(0xFFFFE8DC),
-                                    unselectedIconColor = Color(0xFF64748B),
-                                    unselectedTextColor = Color(0xFF64748B)
-                                ),
-                                modifier = Modifier.testTag("nav_item_${screen.route}")
-                            )
+                                    },
+                                    label = {
+                                        Text(
+                                            text = screen.title,
+                                            fontSize = 11.5.sp,
+                                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
+                                        )
+                                    },
+                                    colors = NavigationBarItemDefaults.colors(
+                                        selectedIconColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                        selectedTextColor = MaterialTheme.colorScheme.primary,
+                                        indicatorColor = MaterialTheme.colorScheme.primaryContainer,
+                                        unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
+                                    ),
+                                    modifier = Modifier.testTag("nav_item_${screen.route}")
+                                )
+                            }
                         }
                     }
                 }

@@ -102,4 +102,24 @@ object BillingSettingsManager {
     fun setBarcodeAutoAdd(context: Context, autoAdd: Boolean) {
         getPrefs(context).edit().putBoolean(KEY_BARCODE_AUTO_ADD, autoAdd).apply()
     }
+
+    // --- Theme & Appearance ---
+    private const val KEY_THEME_MODE = "app_theme_mode"
+    private const val KEY_COLOR_PALETTE = "app_color_palette"
+
+    fun getThemeMode(context: Context): String {
+        return getPrefs(context).getString(KEY_THEME_MODE, "SYSTEM") ?: "SYSTEM"
+    }
+
+    fun setThemeMode(context: Context, mode: String) {
+        getPrefs(context).edit().putString(KEY_THEME_MODE, mode.trim().uppercase()).apply()
+    }
+
+    fun getColorPalette(context: Context): String {
+        return getPrefs(context).getString(KEY_COLOR_PALETTE, "EMERALD") ?: "EMERALD"
+    }
+
+    fun setColorPalette(context: Context, palette: String) {
+        getPrefs(context).edit().putString(KEY_COLOR_PALETTE, palette.trim().uppercase()).apply()
+    }
 }

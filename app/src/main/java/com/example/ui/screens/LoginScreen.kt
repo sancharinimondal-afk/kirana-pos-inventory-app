@@ -1,6 +1,7 @@
 package com.example.ui.screens
 
 import android.widget.Toast
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -61,8 +62,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.R
 import com.example.security.SecureAuthManager
-import com.example.ui.theme.GroceryNavy
 import com.example.ui.theme.GroceryOrange
+import com.example.ui.theme.kiranaTextFieldColors
 
 @Composable
 fun LoginScreen(
@@ -97,10 +98,11 @@ fun LoginScreen(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFFF8FAFC))
+            .background(MaterialTheme.colorScheme.background)
             .testTag("login_screen")
     ) {
         // Decorative top curved banner
+        val bannerColor = MaterialTheme.colorScheme.primary
         Canvas(
             modifier = Modifier
                 .fillMaxWidth()
@@ -115,7 +117,7 @@ fun LoginScreen(
                 cubicTo(width * 0.75f, height, width * 0.25f, height * 0.65f, 0f, height * 0.95f)
                 close()
             }
-            drawPath(path, color = GroceryOrange)
+            drawPath(path, color = bannerColor)
         }
 
         Column(
@@ -130,8 +132,9 @@ fun LoginScreen(
             // Brand Logo & Title Card
             Surface(
                 shape = RoundedCornerShape(22.dp),
-                color = Color.White,
-                shadowElevation = 4.dp,
+                color = MaterialTheme.colorScheme.surface,
+                shadowElevation = 3.dp,
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
                 modifier = Modifier.size(76.dp)
             ) {
                 Box(contentAlignment = Alignment.Center, modifier = Modifier.padding(10.dp)) {
@@ -150,13 +153,13 @@ fun LoginScreen(
                     text = "Grocery ",
                     fontSize = 26.sp,
                     fontWeight = FontWeight.Bold,
-                    color = GroceryNavy
+                    color = MaterialTheme.colorScheme.onBackground
                 )
                 Text(
                     text = "Shop",
                     fontSize = 26.sp,
                     fontWeight = FontWeight.ExtraBold,
-                    color = GroceryOrange
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
 
@@ -173,7 +176,8 @@ fun LoginScreen(
             // Main Authentication Card
             Card(
                 shape = RoundedCornerShape(18.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f)),
                 elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -187,7 +191,7 @@ fun LoginScreen(
                         },
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
-                        color = GroceryNavy
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
                         text = when {
@@ -226,7 +230,7 @@ fun LoginScreen(
                             text = "Shop Owner Name",
                             fontSize = 12.sp,
                             fontWeight = FontWeight.SemiBold,
-                            color = GroceryNavy
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         OutlinedTextField(
@@ -237,8 +241,9 @@ fun LoginScreen(
                             },
                             placeholder = { Text("e.g. Ramesh Kumar", fontSize = 13.sp) },
                             leadingIcon = {
-                                Icon(Icons.Default.Badge, contentDescription = null, tint = GroceryOrange)
+                                Icon(Icons.Default.Badge, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                             },
+                            colors = kiranaTextFieldColors(),
                             singleLine = true,
                             shape = RoundedCornerShape(10.dp),
                             modifier = Modifier
@@ -252,7 +257,7 @@ fun LoginScreen(
                             text = "Username or Mobile Number",
                             fontSize = 12.sp,
                             fontWeight = FontWeight.SemiBold,
-                            color = GroceryNavy
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         OutlinedTextField(
@@ -263,8 +268,9 @@ fun LoginScreen(
                             },
                             placeholder = { Text("e.g. 9876543210 or storeowner", fontSize = 13.sp) },
                             leadingIcon = {
-                                Icon(Icons.Default.Person, contentDescription = null, tint = GroceryOrange)
+                                Icon(Icons.Default.Person, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                             },
+                            colors = kiranaTextFieldColors(),
                             singleLine = true,
                             shape = RoundedCornerShape(10.dp),
                             modifier = Modifier
@@ -278,7 +284,7 @@ fun LoginScreen(
                             text = "Set Security PIN / Password (min 4 chars)",
                             fontSize = 12.sp,
                             fontWeight = FontWeight.SemiBold,
-                            color = GroceryNavy
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         OutlinedTextField(
@@ -289,8 +295,9 @@ fun LoginScreen(
                             },
                             placeholder = { Text("Enter 4-digit PIN or password", fontSize = 13.sp) },
                             leadingIcon = {
-                                Icon(Icons.Default.Lock, contentDescription = null, tint = GroceryOrange)
+                                Icon(Icons.Default.Lock, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                             },
+                            colors = kiranaTextFieldColors(),
                             trailingIcon = {
                                 IconButton(onClick = { showPassword = !showPassword }) {
                                     Icon(
@@ -315,7 +322,7 @@ fun LoginScreen(
                             text = "Confirm PIN / Password",
                             fontSize = 12.sp,
                             fontWeight = FontWeight.SemiBold,
-                            color = GroceryNavy
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         OutlinedTextField(
@@ -326,8 +333,9 @@ fun LoginScreen(
                             },
                             placeholder = { Text("Re-enter PIN or password", fontSize = 13.sp) },
                             leadingIcon = {
-                                Icon(Icons.Default.Security, contentDescription = null, tint = GroceryOrange)
+                                Icon(Icons.Default.Security, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                             },
+                            colors = kiranaTextFieldColors(),
                             visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                             singleLine = true,
@@ -342,7 +350,7 @@ fun LoginScreen(
                             text = "Username or Mobile Number",
                             fontSize = 12.sp,
                             fontWeight = FontWeight.SemiBold,
-                            color = GroceryNavy
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         OutlinedTextField(
@@ -353,8 +361,9 @@ fun LoginScreen(
                             },
                             placeholder = { Text("Enter username or mobile no", fontSize = 13.sp) },
                             leadingIcon = {
-                                Icon(Icons.Default.Person, contentDescription = null, tint = GroceryOrange)
+                                Icon(Icons.Default.Person, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                             },
+                            colors = kiranaTextFieldColors(),
                             singleLine = true,
                             shape = RoundedCornerShape(10.dp),
                             modifier = Modifier
@@ -368,7 +377,7 @@ fun LoginScreen(
                             text = "Security PIN / Password",
                             fontSize = 12.sp,
                             fontWeight = FontWeight.SemiBold,
-                            color = GroceryNavy
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         OutlinedTextField(
@@ -379,8 +388,9 @@ fun LoginScreen(
                             },
                             placeholder = { Text("Enter PIN or password", fontSize = 13.sp) },
                             leadingIcon = {
-                                Icon(Icons.Default.Lock, contentDescription = null, tint = GroceryOrange)
+                                Icon(Icons.Default.Lock, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                             },
+                            colors = kiranaTextFieldColors(),
                             trailingIcon = {
                                 IconButton(onClick = { showPassword = !showPassword }) {
                                     Icon(
@@ -415,9 +425,9 @@ fun LoginScreen(
                             Checkbox(
                                 checked = rememberMe,
                                 onCheckedChange = { rememberMe = it },
-                                colors = CheckboxDefaults.colors(checkedColor = GroceryOrange)
+                                colors = CheckboxDefaults.colors(checkedColor = MaterialTheme.colorScheme.primary)
                             )
-                            Text("Keep me signed in", fontSize = 12.sp, color = GroceryNavy)
+                            Text("Keep me signed in", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface)
                         }
 
                         if (!isSetupMode) {
@@ -425,7 +435,7 @@ fun LoginScreen(
                                 text = "Reset Credentials",
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.SemiBold,
-                                color = GroceryOrange,
+                                color = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.clickable {
                                     isSetupMode = true
                                     errorMessage = null
@@ -512,7 +522,10 @@ fun LoginScreen(
                                 }
                             }
                         },
-                        colors = ButtonDefaults.buttonColors(containerColor = GroceryOrange),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary
+                        ),
                         shape = RoundedCornerShape(12.dp),
                         modifier = Modifier
                             .fillMaxWidth()
@@ -527,7 +540,7 @@ fun LoginScreen(
                             },
                             fontSize = 15.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color.White
+                            color = MaterialTheme.colorScheme.onPrimary
                         )
                     }
 

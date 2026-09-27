@@ -1,6 +1,7 @@
 package com.example.ui.screens
 
 import android.widget.Toast
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -74,8 +75,8 @@ import com.example.billing.PurchaseCalculator
 import com.example.data.PurchaseItemInput
 import com.example.data.model.ProductItem
 import com.example.ui.KiranaViewModel
-import com.example.ui.theme.GroceryNavy
 import com.example.ui.theme.GroceryOrange
+import com.example.ui.theme.kiranaTextFieldColors
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -193,8 +194,8 @@ fun PurchaseScreen(
             item {
                 Surface(
                     shape = RoundedCornerShape(12.dp),
-                    color = Color(0xFFEFF6FF),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFBFDBFE)),
+                    color = MaterialTheme.colorScheme.secondaryContainer,
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Row(
@@ -204,7 +205,7 @@ fun PurchaseScreen(
                         Icon(
                             imageVector = Icons.Default.Info,
                             contentDescription = null,
-                            tint = Color(0xFF1D4ED8),
+                            tint = MaterialTheme.colorScheme.onSecondaryContainer,
                             modifier = Modifier.size(20.dp)
                         )
                         Spacer(modifier = Modifier.width(8.dp))
@@ -213,12 +214,12 @@ fun PurchaseScreen(
                                 text = "Purchase Calculation Model: GST-Exclusive",
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 12.sp,
-                                color = Color(0xFF1E40AF)
+                                color = MaterialTheme.colorScheme.onSecondaryContainer
                             )
                             Text(
                                 text = "Taxable = (Qty × Rate) - Discount  |  GST = Taxable × GST%  |  Grand Total = Taxable + GST",
                                 fontSize = 11.sp,
-                                color = Color(0xFF1E3A8A)
+                                color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.85f)
                             )
                         }
                     }
@@ -229,18 +230,20 @@ fun PurchaseScreen(
             item {
                 Card(
                     shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text("Supplier Name *", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF64748B))
+                        Text("Supplier Name *", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         Spacer(modifier = Modifier.height(4.dp))
                         Box(modifier = Modifier.fillMaxWidth()) {
                             OutlinedTextField(
                                 value = supplierName,
                                 onValueChange = { supplierName = it },
                                 placeholder = { Text("e.g. Shyam Wholesalers") },
+                                colors = kiranaTextFieldColors(),
                                 trailingIcon = {
                                     IconButton(onClick = { supplierMenuExpanded = true }) {
                                         Icon(Icons.Default.KeyboardArrowDown, contentDescription = null)
@@ -270,12 +273,13 @@ fun PurchaseScreen(
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                             // Invoice Number
                             Column(modifier = Modifier.weight(1f)) {
-                                Text("Supplier Bill / Invoice #", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF64748B))
+                                Text("Supplier Bill / Invoice #", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 Spacer(modifier = Modifier.height(4.dp))
                                 OutlinedTextField(
                                     value = invoiceNumber,
                                     onValueChange = { invoiceNumber = it },
                                     placeholder = { Text("INV-00123") },
+                                    colors = kiranaTextFieldColors(),
                                     shape = RoundedCornerShape(10.dp),
                                     modifier = Modifier.fillMaxWidth().testTag("purchase_invoice_input")
                                 )
@@ -283,12 +287,13 @@ fun PurchaseScreen(
 
                             // Supplier Phone
                             Column(modifier = Modifier.weight(1f)) {
-                                Text("Supplier Mobile", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF64748B))
+                                Text("Supplier Mobile", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 Spacer(modifier = Modifier.height(4.dp))
                                 OutlinedTextField(
                                     value = supplierPhone,
                                     onValueChange = { supplierPhone = it },
                                     placeholder = { Text("10-digit phone") },
+                                    colors = kiranaTextFieldColors(),
                                     shape = RoundedCornerShape(10.dp),
                                     modifier = Modifier.fillMaxWidth().testTag("purchase_phone_input")
                                 )
@@ -300,11 +305,12 @@ fun PurchaseScreen(
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                             // Date
                             Column(modifier = Modifier.weight(1f)) {
-                                Text("Purchase Date", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF64748B))
+                                Text("Purchase Date", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 Spacer(modifier = Modifier.height(4.dp))
                                 OutlinedTextField(
                                     value = purchaseDate,
                                     onValueChange = { purchaseDate = it },
+                                    colors = kiranaTextFieldColors(),
                                     trailingIcon = { Icon(Icons.Default.CalendarToday, contentDescription = null, modifier = Modifier.size(18.dp)) },
                                     shape = RoundedCornerShape(10.dp),
                                     modifier = Modifier.fillMaxWidth()
@@ -313,13 +319,14 @@ fun PurchaseScreen(
 
                             // Payment Mode
                             Column(modifier = Modifier.weight(1f)) {
-                                Text("Payment Mode", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF64748B))
+                                Text("Payment Mode", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Box(modifier = Modifier.fillMaxWidth()) {
                                     OutlinedTextField(
                                         value = paymentMode,
                                         onValueChange = {},
                                         readOnly = true,
+                                        colors = kiranaTextFieldColors(),
                                         trailingIcon = {
                                             IconButton(onClick = { paymentMenuExpanded = true }) {
                                                 Icon(Icons.Default.KeyboardArrowDown, contentDescription = null)
@@ -353,7 +360,8 @@ fun PurchaseScreen(
             item {
                 Card(
                     shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
                     elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
                     modifier = Modifier.fillMaxWidth()
                 ) {
@@ -363,13 +371,13 @@ fun PurchaseScreen(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text("New Product Markup Setting", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = GroceryNavy)
-                            Text("${markupPercentage.toInt()}% over cost", fontSize = 12.sp, fontWeight = FontWeight.ExtraBold, color = GroceryOrange)
+                            Text("New Product Markup Setting", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
+                            Text("${markupPercentage.toInt()}% over cost", fontSize = 12.sp, fontWeight = FontWeight.ExtraBold, color = MaterialTheme.colorScheme.primary)
                         }
                         Text(
                             "Applied when user doesn't enter custom selling price (no arbitrary 1.15 multiplier).",
                             fontSize = 11.sp,
-                            color = Color(0xFF64748B)
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Spacer(modifier = Modifier.height(6.dp))
                         Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -380,7 +388,7 @@ fun PurchaseScreen(
                                     onClick = { markupPercentage = pct },
                                     label = { Text("${pct.toInt()}%") },
                                     colors = FilterChipDefaults.filterChipColors(
-                                        selectedContainerColor = GroceryOrange,
+                                        selectedContainerColor = MaterialTheme.colorScheme.primary,
                                         selectedLabelColor = Color.White
                                     )
                                 )
@@ -402,18 +410,21 @@ fun PurchaseScreen(
                             text = "Purchase Items (${purchaseItems.size})",
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF1E293B)
+                            color = MaterialTheme.colorScheme.onBackground
                         )
                         Text(
                             text = "Enter purchase cost rate (GST-exclusive)",
                             fontSize = 11.sp,
-                            color = Color(0xFF64748B)
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
 
                     Button(
                         onClick = { showAddItemDialog = true },
-                        colors = ButtonDefaults.buttonColors(containerColor = GroceryOrange),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary
+                        ),
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier.testTag("purchase_add_item_btn")
                     ) {
@@ -429,8 +440,9 @@ fun PurchaseScreen(
                 item {
                     Card(
                         shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color.White),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Box(
@@ -443,7 +455,7 @@ fun PurchaseScreen(
                                 text = "No purchase items added yet.\nClick '+ Add Item' above to record inward stock.",
                                 textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                                 fontSize = 13.sp,
-                                color = Color(0xFF64748B)
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     }
@@ -455,7 +467,8 @@ fun PurchaseScreen(
 
                     Card(
                         shape = RoundedCornerShape(12.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color.White),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
                         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
                         modifier = Modifier.fillMaxWidth()
                     ) {
@@ -470,13 +483,13 @@ fun PurchaseScreen(
                                         text = item.productName,
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 14.sp,
-                                        color = Color(0xFF0F172A)
+                                        color = MaterialTheme.colorScheme.onSurface
                                     )
                                     Text(
                                         text = "${item.quantity} ${item.unit} @ ₹${item.rate}/unit (excl GST)" +
                                                 if (item.lineDiscount > 0) " | Disc: ₹${item.lineDiscount}" else "",
                                         fontSize = 12.sp,
-                                        color = Color(0xFF475569)
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
                                 IconButton(
@@ -504,26 +517,26 @@ fun PurchaseScreen(
                                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                     Surface(
                                         shape = RoundedCornerShape(6.dp),
-                                        color = Color(0xFFF1F5F9)
+                                        color = MaterialTheme.colorScheme.surfaceVariant
                                     ) {
                                         Text(
                                             text = "GST ${item.gstRate.toInt()}%: ₹${itemCalc?.gstAmount ?: 0.0}",
                                             fontSize = 11.sp,
                                             fontWeight = FontWeight.SemiBold,
-                                            color = Color(0xFF334155),
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                                             modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                                         )
                                     }
                                     if (item.sellingPrice != null && item.sellingPrice > 0) {
                                         Surface(
                                             shape = RoundedCornerShape(6.dp),
-                                            color = Color(0xFFECFDF5)
+                                            color = MaterialTheme.colorScheme.primaryContainer
                                         ) {
                                             Text(
                                                 text = "Sell: ₹${item.sellingPrice}",
                                                 fontSize = 11.sp,
                                                 fontWeight = FontWeight.SemiBold,
-                                                color = Color(0xFF065F46),
+                                                color = MaterialTheme.colorScheme.onPrimaryContainer,
                                                 modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                                             )
                                         }
@@ -547,8 +560,9 @@ fun PurchaseScreen(
                 item {
                     Card(
                         shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color.White),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
@@ -556,7 +570,7 @@ fun PurchaseScreen(
                                 text = "Purchase Bill Summary (GST-Exclusive)",
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 14.sp,
-                                color = GroceryNavy
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                             Spacer(modifier = Modifier.height(10.dp))
 
@@ -566,12 +580,13 @@ fun PurchaseScreen(
                                 onValueChange = { overallDiscountInput = it },
                                 label = { Text("Overall Bill Discount (₹)") },
                                 placeholder = { Text("0.0") },
+                                colors = com.example.ui.theme.kiranaTextFieldColors(),
                                 shape = RoundedCornerShape(10.dp),
                                 modifier = Modifier.fillMaxWidth().testTag("purchase_overall_discount_input")
                             )
 
                             Spacer(modifier = Modifier.height(10.dp))
-                            HorizontalDivider(color = Color(0xFFF1F5F9))
+                            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
                             Spacer(modifier = Modifier.height(8.dp))
 
                             SummaryRow("Gross Subtotal", "₹${calculationResult?.grossSubtotal ?: 0.0}")
@@ -581,19 +596,19 @@ fun PurchaseScreen(
                             SummaryRow("Taxable Amount", "₹${calculationResult?.totalTaxableAmount ?: 0.0}")
                             SummaryRow("Total GST", "+₹${calculationResult?.totalGst ?: 0.0}", color = Color(0xFF2563EB))
 
-                            HorizontalDivider(thickness = 1.5.dp, color = Color(0xFFCBD5E1), modifier = Modifier.padding(vertical = 8.dp))
+                            HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f), modifier = Modifier.padding(vertical = 8.dp))
 
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text("Grand Total", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = GroceryNavy)
+                                Text("Grand Total", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
                                 Text(
                                     "₹${calculationResult?.grandTotal ?: 0.0}",
                                     fontSize = 20.sp,
                                     fontWeight = FontWeight.ExtraBold,
-                                    color = GroceryOrange,
+                                    color = MaterialTheme.colorScheme.primary,
                                     modifier = Modifier.testTag("purchase_grand_total_text")
                                 )
                             }
@@ -686,14 +701,14 @@ fun PurchaseScreen(
 }
 
 @Composable
-private fun SummaryRow(label: String, value: String, color: Color = Color(0xFF334155)) {
+private fun SummaryRow(label: String, value: String, color: Color = MaterialTheme.colorScheme.onSurface) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 2.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(label, fontSize = 13.sp, color = Color(0xFF64748B))
+        Text(label, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Text(value, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = color)
     }
 }
@@ -739,7 +754,7 @@ fun AddPurchaseItemDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Add Purchase Item (Inward)", fontWeight = FontWeight.Bold, color = GroceryNavy) },
+        title = { Text("Add Purchase Item (Inward)", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface) },
         text = {
             LazyColumn(
                 modifier = Modifier.fillMaxWidth(),
@@ -873,8 +888,8 @@ fun AddPurchaseItemDialog(
                 item {
                     Surface(
                         shape = RoundedCornerShape(10.dp),
-                        color = Color(0xFFF8FAFC),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE2E8F0)),
+                        color = MaterialTheme.colorScheme.surfaceVariant,
+                        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Column(modifier = Modifier.padding(10.dp)) {
@@ -882,12 +897,12 @@ fun AddPurchaseItemDialog(
                                 "Selling Price & MRP Configuration",
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = GroceryNavy
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                             Text(
                                 "Enter explicit retail price, or leave blank to apply configurable markup (${defaultMarkup.toInt()}%).",
                                 fontSize = 10.sp,
-                                color = Color(0xFF64748B)
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             Spacer(modifier = Modifier.height(6.dp))
 

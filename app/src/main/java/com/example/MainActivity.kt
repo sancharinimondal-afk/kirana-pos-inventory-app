@@ -9,6 +9,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.backup.AutoBackupScheduler
 import com.example.data.AppDatabase
 import com.example.data.KiranaRepository
@@ -33,7 +36,19 @@ class MainActivity : ComponentActivity() {
     AutoBackupScheduler.scheduleDailyBackup(applicationContext)
 
     setContent {
-      MyApplicationTheme {
+      val themeMode by viewModel.themeMode.collectAsStateWithLifecycle()
+      val colorPalette by viewModel.colorPalette.collectAsStateWithLifecycle()
+      val isSystemDark = isSystemInDarkTheme()
+      val useDarkTheme = when (themeMode) {
+        "DARK" -> true
+        "LIGHT" -> false
+        else -> isSystemDark
+      }
+
+      MyApplicationTheme(
+        darkTheme = useDarkTheme,
+        palette = colorPalette
+      ) {
         Surface(
           modifier = Modifier.fillMaxSize(),
           color = MaterialTheme.colorScheme.background

@@ -1,5 +1,6 @@
 package com.example.ui.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -108,7 +109,8 @@ fun ProductCard(
         colors = CardDefaults.cardColors(
             containerColor = if (product.isActive) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = if (product.isActive) 2.dp else 0.dp)
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
+        elevation = CardDefaults.cardElevation(defaultElevation = if (product.isActive) 1.5.dp else 0.dp)
     ) {
         Column(modifier = Modifier.padding(14.dp)) {
             // Header Row: Thumbnail + Product Name & Barcode/SKU + Stock Status
@@ -462,7 +464,7 @@ fun ProductCard(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(Color(0xFFF8FAFC), RoundedCornerShape(12.dp))
+                        .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(12.dp))
                         .padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
@@ -470,14 +472,14 @@ fun ProductCard(
                         text = product.name,
                         fontWeight = FontWeight.Bold,
                         fontSize = 15.sp,
-                        color = Color(0xFF0F172A)
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = "Rate: ₹ $sellingDisplay | MRP: ₹ $mrpDisplay",
                         fontWeight = FontWeight.Bold,
                         fontSize = 13.sp,
-                        color = GroceryOrange
+                        color = MaterialTheme.colorScheme.primary
                     )
                     Spacer(modifier = Modifier.height(14.dp))
 
@@ -523,7 +525,10 @@ fun ProductCard(
             confirmButton = {
                 Button(
                     onClick = { showBarcodePreview = false },
-                    colors = ButtonDefaults.buttonColors(containerColor = GroceryOrange)
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    )
                 ) {
                     Text("Close")
                 }
