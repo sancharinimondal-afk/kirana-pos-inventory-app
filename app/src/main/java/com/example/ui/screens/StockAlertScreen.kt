@@ -186,12 +186,18 @@ fun StockAlertScreen(
                                     color = MaterialTheme.colorScheme.onSurface
                                 )
                                 Spacer(modifier = Modifier.height(3.dp))
+                                val unitTrimmed = product.unit.trim()
+                                val stockLabel = if (unitTrimmed.firstOrNull()?.isDigit() == true) {
+                                    "${product.currentStock.toInt()} pkts ($unitTrimmed)"
+                                } else {
+                                    "${product.currentStock.toInt()} $unitTrimmed"
+                                }
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Text(
-                                        text = "Stock: ${product.currentStock.toInt()}",
+                                        text = "Stock: $stockLabel",
                                         fontSize = 13.sp,
                                         fontWeight = FontWeight.SemiBold,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        color = if (product.currentStock <= 0) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Text(

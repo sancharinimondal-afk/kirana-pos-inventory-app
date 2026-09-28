@@ -162,6 +162,9 @@ fun DashboardScreen(
         QuickActionItem("Reports", Icons.Default.BarChart, Color(0xFFFDF2F8), Color(0xFFDB2777)) {
             onOpenReports()
         },
+        QuickActionItem("Stock Alert", Icons.Default.Warning, Color(0xFFFEE2E2), Color(0xFFDC2626)) {
+            onOpenStockAlert()
+        },
         QuickActionItem("Backup", Icons.Default.CloudUpload, Color(0xFFECFEFF), Color(0xFF0891B2)) {
             onOpenBackup()
         }
