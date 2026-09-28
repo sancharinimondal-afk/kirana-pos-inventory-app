@@ -999,8 +999,10 @@ private fun CartItemsReviewSection(
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis
                             )
+                            val unitLabel = if (item.unit.isNotBlank()) " (${item.unit})" else ""
+                            val discLabel = if (item.lineDiscount > 0) " (Disc -₹${item.lineDiscount})" else ""
                             Text(
-                                text = "$qtyDisplay ${item.unit} × ₹${String.format(Locale.ENGLISH, "%.2f", item.rate)}" + if (item.lineDiscount > 0) " (Disc -₹${item.lineDiscount})" else "",
+                                text = "Qty: $qtyDisplay × ₹${String.format(Locale.ENGLISH, "%.2f", item.rate)}$unitLabel$discLabel",
                                 fontSize = 10.5.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -1197,15 +1199,25 @@ private fun CartItemRow(
                     }
 
                     val qtyDisplay = if (item.quantity % 1.0 == 0.0) item.quantity.toInt().toString() else String.format(Locale.ENGLISH, "%.1f", item.quantity)
-                    Text(
-                        text = "$qtyDisplay ${item.unit}",
-                        fontWeight = FontWeight.ExtraBold,
-                        fontSize = 14.sp,
-                        color = MaterialTheme.colorScheme.onSurface,
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier
-                            .padding(horizontal = 10.dp)
+                            .padding(horizontal = 12.dp)
                             .testTag("cart_qty_${item.productId}")
-                    )
+                    ) {
+                        Text(
+                            text = qtyDisplay,
+                            fontWeight = FontWeight.ExtraBold,
+                            fontSize = 16.sp,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Text(
+                            text = "Qty",
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
 
                     IconButton(
                         onClick = { onUpdateQty(1.0) },
