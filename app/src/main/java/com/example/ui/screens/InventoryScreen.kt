@@ -26,6 +26,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material.icons.filled.Search
@@ -37,6 +38,8 @@ import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
@@ -124,7 +127,7 @@ fun InventoryScreen(
                 OutlinedTextField(
                     value = searchQuery,
                     onValueChange = { viewModel.searchQuery.value = it },
-                    placeholder = { Text("Search by name, barcode, SKU...", fontSize = 13.sp) },
+                    placeholder = { Text("Search products...", fontSize = 13.sp, maxLines = 1) },
                     leadingIcon = {
                         Icon(imageVector = Icons.Default.Search, contentDescription = "Search", tint = MaterialTheme.colorScheme.onSurfaceVariant)
                     },
@@ -312,27 +315,55 @@ fun InventoryScreen(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
-                // Compact Sort Buttons
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    Text("Sort:", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    sortOptions.forEach { opt ->
-                        val isSortSelected = sortOption == opt
-                        Surface(
-                            shape = RoundedCornerShape(6.dp),
-                            color = if (isSortSelected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent,
-                            modifier = Modifier
-                                .clickable { sortOption = opt }
-                                .padding(horizontal = 2.dp, vertical = 2.dp)
+                // Compact Sort Dropdown Pill
+                Box {
+                    var showSortMenu by remember { mutableStateOf(false) }
+                    Surface(
+                        shape = RoundedCornerShape(8.dp),
+                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
+                        modifier = Modifier
+                            .clickable { showSortMenu = true }
+                            .padding(horizontal = 2.dp)
+                            .testTag("sort_dropdown_btn")
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                         ) {
                             Text(
-                                text = opt,
-                                fontSize = 10.5.sp,
-                                fontWeight = if (isSortSelected) FontWeight.Bold else FontWeight.Normal,
-                                color = if (isSortSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp)
+                                text = "Sort: $sortOption",
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Icon(
+                                imageVector = Icons.Default.ArrowDropDown,
+                                contentDescription = "Change sort",
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
+                    }
+
+                    DropdownMenu(
+                        expanded = showSortMenu,
+                        onDismissRequest = { showSortMenu = false }
+                    ) {
+                        sortOptions.forEach { opt ->
+                            DropdownMenuItem(
+                                text = {
+                                    Text(
+                                        text = opt,
+                                        fontWeight = if (sortOption == opt) FontWeight.Bold else FontWeight.Normal,
+                                        color = if (sortOption == opt) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                                    )
+                                },
+                                onClick = {
+                                    sortOption = opt
+                                    showSortMenu = false
+                                }
                             )
                         }
                     }
@@ -414,7 +445,7 @@ fun InventoryScreen(
                         modifier = Modifier.fillMaxSize(),
                         verticalArrangement = Arrangement.spacedBy(10.dp),
                         horizontalArrangement = Arrangement.spacedBy(10.dp),
-                        contentPadding = PaddingValues(top = 4.dp, bottom = if (cartItems.isNotEmpty()) 170.dp else 100.dp)
+                        contentPadding = PaddingValues(top = 4.dp, bottom = if (cartItems.isNotEmpty()) 80.dp else 16.dp)
                     ) {
                         items(sortedProducts, key = { it.id }) { product ->
                             val itemCartQty = cartItems.find { it.productId == product.id }?.quantity ?: 0.0
@@ -512,19 +543,6 @@ fun InventoryScreen(
                     }
                 }
             }
-        }
-
-        // Floating Action Button to Add Product (Accessibility & Convenience)
-        FloatingActionButton(
-            onClick = { onOpenAddProduct(null) },
-            containerColor = MaterialTheme.colorScheme.primary,
-            contentColor = MaterialTheme.colorScheme.onPrimary,
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(bottom = if (cartItems.isNotEmpty()) 86.dp else 24.dp, end = 20.dp)
-                .testTag("fab_add_product")
-        ) {
-            Icon(imageVector = Icons.Default.Add, contentDescription = "Add Product")
         }
     }
 
