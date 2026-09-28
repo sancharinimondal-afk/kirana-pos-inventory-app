@@ -37,6 +37,7 @@ import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.FloatingActionButton
@@ -112,214 +113,230 @@ fun InventoryScreen(
         ) {
             Spacer(modifier = Modifier.height(8.dp))
 
-            // TOP SECTION: Full-width Search Bar with Integrated Scanner
-            OutlinedTextField(
-                value = searchQuery,
-                onValueChange = { viewModel.searchQuery.value = it },
-                placeholder = { Text("Search by name, barcode, SKU...", fontSize = 13.5.sp) },
-                leadingIcon = {
-                    Icon(imageVector = Icons.Default.Search, contentDescription = "Search", tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                },
-                trailingIcon = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        if (searchQuery.isNotEmpty()) {
-                            IconButton(onClick = { viewModel.searchQuery.value = "" }) {
-                                Icon(imageVector = Icons.Default.Clear, contentDescription = "Clear")
-                            }
-                        }
-                        IconButton(
-                            onClick = onOpenScanner,
-                            modifier = Modifier.testTag("inventory_scan_barcode_btn")
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.QrCodeScanner,
-                                contentDescription = "Scan Barcode",
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                        }
-                    }
-                },
-                singleLine = true,
-                colors = kiranaTextFieldColors(),
-                shape = RoundedCornerShape(14.dp),
+            // 1. TOP BAR: Search Field + Add Product + Export CSV (Single clean row)
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .testTag("inventory_search_field")
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Action Row: Add Product & Export CSV
-            Row(
-                modifier = Modifier.fillMaxWidth(),
+                    .padding(top = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
+                OutlinedTextField(
+                    value = searchQuery,
+                    onValueChange = { viewModel.searchQuery.value = it },
+                    placeholder = { Text("Search by name, barcode, SKU...", fontSize = 13.sp) },
+                    leadingIcon = {
+                        Icon(imageVector = Icons.Default.Search, contentDescription = "Search", tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                    },
+                    trailingIcon = {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            if (searchQuery.isNotEmpty()) {
+                                IconButton(onClick = { viewModel.searchQuery.value = "" }) {
+                                    Icon(imageVector = Icons.Default.Clear, contentDescription = "Clear")
+                                }
+                            }
+                            IconButton(
+                                onClick = onOpenScanner,
+                                modifier = Modifier.testTag("inventory_scan_barcode_btn")
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.QrCodeScanner,
+                                    contentDescription = "Scan Barcode",
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                        }
+                    },
+                    singleLine = true,
+                    colors = kiranaTextFieldColors(),
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier
+                        .weight(1f)
+                        .testTag("inventory_search_field")
+                )
+
+                // Add Product Button
                 Button(
                     onClick = { onOpenAddProduct(null) },
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(12.dp),
-                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 10.dp),
+                    contentPadding = PaddingValues(horizontal = 14.dp, vertical = 12.dp),
                     modifier = Modifier.testTag("inventory_add_product_btn")
                 ) {
-                    Icon(imageVector = Icons.Default.Add, contentDescription = "Add Product", modifier = Modifier.size(18.dp))
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text("Add Product", fontWeight = FontWeight.SemiBold, fontSize = 13.5.sp)
+                    Icon(imageVector = Icons.Default.Add, contentDescription = "Add", modifier = Modifier.size(18.dp))
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text("Add", fontWeight = FontWeight.Bold, fontSize = 13.sp)
                 }
 
-                OutlinedButton(
+                // Export CSV Icon Button
+                FilledTonalIconButton(
                     onClick = { viewModel.exportCsv(context) },
                     shape = RoundedCornerShape(12.dp),
-                    contentPadding = PaddingValues(horizontal = 14.dp, vertical = 10.dp),
-                    modifier = Modifier.testTag("inventory_export_csv_btn")
+                    modifier = Modifier
+                        .size(46.dp)
+                        .testTag("inventory_export_csv_btn")
                 ) {
                     Icon(
                         imageVector = Icons.Default.TableView,
                         contentDescription = "Export Excel CSV",
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text("Export CSV", fontSize = 12.5.sp)
-                }
-            }
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            // FILTERS SECTION: All, Low Stock, Out of Stock, Inactive (Mandatory per Phase 9)
-            val filterTabs = listOf(
-                Triple("All ($activeProductsCount)", StockFilterOption.ALL, MaterialTheme.colorScheme.primary),
-                Triple("Low Stock (${lowStockProducts.size})", StockFilterOption.LOW_STOCK, LowStockAlertColor),
-                Triple("Out of Stock (${outOfStockProducts.size})", StockFilterOption.OUT_OF_STOCK, OutOfStockAlertColor),
-                Triple("Inactive (${inactiveProducts.size})", StockFilterOption.INACTIVE, Color(0xFF64748B))
-            )
-
-            TabRow(
-                selectedTabIndex = filterTabs.indexOfFirst { it.second == stockFilter }.coerceAtLeast(0),
-                containerColor = MaterialTheme.colorScheme.surface,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                filterTabs.forEach { (label, option, accentColor) ->
-                    val isSelected = stockFilter == option
-                    Tab(
-                        selected = isSelected,
-                        onClick = { viewModel.stockFilter.value = option },
-                        text = {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                if (option != StockFilterOption.ALL && option != StockFilterOption.INACTIVE &&
-                                    (if (option == StockFilterOption.LOW_STOCK) lowStockProducts.isNotEmpty() else outOfStockProducts.isNotEmpty())
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Warning,
-                                        contentDescription = "Alert",
-                                        tint = accentColor,
-                                        modifier = Modifier.size(12.dp)
-                                    )
-                                    Spacer(modifier = Modifier.width(4.dp))
-                                }
-                                Text(
-                                    text = label,
-                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                                    fontSize = 12.sp,
-                                    color = if (isSelected) accentColor else MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                        },
-                        modifier = Modifier.testTag("tab_filter_${option.name.lowercase()}")
+                        modifier = Modifier.size(20.dp)
                     )
                 }
             }
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // CATEGORY FILTER CHIPS (Mandatory per Phase 9)
+            // 2. UNIFIED FILTER ROW: Stock Status Chips + Category Chips (Single horizontal scroll)
             val standardCats = KiranaCategories.ALL_CATEGORIES
             val existingCats = allProducts.map { it.category.trim() }.filter { it.isNotBlank() }.distinct()
-            val allCategoryList = listOf("All") + (standardCats.map { it.nameEn } + existingCats).distinct()
+            val allCategoryList = (standardCats.map { it.nameEn } + existingCats).distinct()
 
             LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                items(allCategoryList) { category ->
-                    val isSelected = (category == "All" && (selectedCategory == "All" || selectedCategory == "All Categories")) ||
-                        category.equals(selectedCategory, ignoreCase = true)
-                    val count = if (category == "All") {
-                        allProducts.size
-                    } else {
-                        allProducts.count {
-                            it.category.equals(category, ignoreCase = true) ||
-                                it.category.contains(category, ignoreCase = true) ||
-                                category.contains(it.category, ignoreCase = true)
-                        }
-                    }
-                    val catInfo = if (category != "All") KiranaCategories.getCategoryInfo(category) else null
-                    val chipLabel = if (category == "All") "All ($count)" else "${catInfo?.emoji ?: "🏷️"} $category ($count)"
-
+                // All Products Chip
+                item {
                     FilterChip(
-                        selected = isSelected,
-                        onClick = { viewModel.selectedCategory.value = if (category == "All") "All" else category },
+                        selected = stockFilter == StockFilterOption.ALL && (selectedCategory == "All" || selectedCategory == "All Categories"),
+                        onClick = {
+                            viewModel.stockFilter.value = StockFilterOption.ALL
+                            viewModel.selectedCategory.value = "All"
+                        },
+                        label = { Text("All ($activeProductsCount)", fontSize = 11.5.sp, fontWeight = FontWeight.Bold) },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = MaterialTheme.colorScheme.primary,
+                            selectedLabelColor = MaterialTheme.colorScheme.onPrimary
+                        ),
+                        modifier = Modifier.testTag("tab_filter_all")
+                    )
+                }
+
+                // Low Stock Chip
+                item {
+                    FilterChip(
+                        selected = stockFilter == StockFilterOption.LOW_STOCK,
+                        onClick = {
+                            viewModel.stockFilter.value = if (stockFilter == StockFilterOption.LOW_STOCK) StockFilterOption.ALL else StockFilterOption.LOW_STOCK
+                        },
+                        leadingIcon = if (lowStockProducts.isNotEmpty()) {
+                            { Icon(Icons.Default.Warning, contentDescription = null, tint = LowStockAlertColor, modifier = Modifier.size(12.dp)) }
+                        } else null,
+                        label = { Text("Low Stock (${lowStockProducts.size})", fontSize = 11.5.sp, fontWeight = FontWeight.Bold) },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = LowStockAlertColor.copy(alpha = 0.2f),
+                            selectedLabelColor = LowStockAlertColor
+                        ),
+                        modifier = Modifier.testTag("tab_filter_low_stock")
+                    )
+                }
+
+                // Out of Stock Chip
+                item {
+                    FilterChip(
+                        selected = stockFilter == StockFilterOption.OUT_OF_STOCK,
+                        onClick = {
+                            viewModel.stockFilter.value = if (stockFilter == StockFilterOption.OUT_OF_STOCK) StockFilterOption.ALL else StockFilterOption.OUT_OF_STOCK
+                        },
+                        leadingIcon = if (outOfStockProducts.isNotEmpty()) {
+                            { Icon(Icons.Default.Warning, contentDescription = null, tint = OutOfStockAlertColor, modifier = Modifier.size(12.dp)) }
+                        } else null,
+                        label = { Text("Out of Stock (${outOfStockProducts.size})", fontSize = 11.5.sp, fontWeight = FontWeight.Bold) },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = OutOfStockAlertColor.copy(alpha = 0.2f),
+                            selectedLabelColor = OutOfStockAlertColor
+                        ),
+                        modifier = Modifier.testTag("tab_filter_out_of_stock")
+                    )
+                }
+
+                // Inactive Chip (if any exist)
+                if (inactiveProducts.isNotEmpty()) {
+                    item {
+                        FilterChip(
+                            selected = stockFilter == StockFilterOption.INACTIVE,
+                            onClick = {
+                                viewModel.stockFilter.value = if (stockFilter == StockFilterOption.INACTIVE) StockFilterOption.ALL else StockFilterOption.INACTIVE
+                            },
+                            label = { Text("Inactive (${inactiveProducts.size})", fontSize = 11.5.sp) },
+                            modifier = Modifier.testTag("tab_filter_inactive")
+                        )
+                    }
+                }
+
+                // Category Chips
+                items(allCategoryList) { category ->
+                    val isCatSelected = category.equals(selectedCategory, ignoreCase = true)
+                    val count = allProducts.count {
+                        it.category.equals(category, ignoreCase = true) ||
+                            it.category.contains(category, ignoreCase = true) ||
+                            category.contains(it.category, ignoreCase = true)
+                    }
+                    val catInfo = KiranaCategories.getCategoryInfo(category)
+                    FilterChip(
+                        selected = isCatSelected,
+                        onClick = {
+                            viewModel.selectedCategory.value = if (isCatSelected) "All" else category
+                        },
                         label = {
                             Text(
-                                text = chipLabel,
+                                text = "${catInfo.emoji} $category ($count)",
                                 fontSize = 11.sp,
-                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
+                                fontWeight = if (isCatSelected) FontWeight.Bold else FontWeight.Medium
                             )
                         },
                         colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = MaterialTheme.colorScheme.primary,
-                            selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
-                            containerColor = MaterialTheme.colorScheme.surface,
-                            labelColor = MaterialTheme.colorScheme.onSurface
+                            selectedContainerColor = MaterialTheme.colorScheme.secondary,
+                            selectedLabelColor = MaterialTheme.colorScheme.onSecondary
                         ),
                         modifier = Modifier.testTag("cat_chip_${category.lowercase().replace(" ", "_")}")
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(6.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
-            // Sort & Info Bar
+            // 3. SORT & RESULT COUNT BAR (Clean, non-intrusive)
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
+                Text(
+                    text = "${filteredProducts.size} ${if (filteredProducts.size == 1) "product" else "products"}",
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                // Compact Sort Buttons
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    Text(
-                        text = "Sort:",
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                    Text("Sort:", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     sortOptions.forEach { opt ->
                         val isSortSelected = sortOption == opt
                         Surface(
-                            shape = RoundedCornerShape(8.dp),
-                            color = if (isSortSelected) MaterialTheme.colorScheme.secondary.copy(alpha = 0.15f) else Color.Transparent,
+                            shape = RoundedCornerShape(6.dp),
+                            color = if (isSortSelected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent,
                             modifier = Modifier
                                 .clickable { sortOption = opt }
-                                .padding(horizontal = 4.dp, vertical = 2.dp)
-                                .testTag("sort_opt_${opt.lowercase().replace(" ", "_").replace("-", "_")}")
+                                .padding(horizontal = 2.dp, vertical = 2.dp)
                         ) {
                             Text(
                                 text = opt,
-                                fontSize = 11.sp,
+                                fontSize = 10.5.sp,
                                 fontWeight = if (isSortSelected) FontWeight.Bold else FontWeight.Normal,
-                                color = if (isSortSelected) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 4.dp)
+                                color = if (isSortSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp)
                             )
                         }
                     }
                 }
-
-                Text(
-                    text = "${filteredProducts.size} items",
-                    fontSize = 11.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
             }
 
             Spacer(modifier = Modifier.height(6.dp))
@@ -397,7 +414,7 @@ fun InventoryScreen(
                         modifier = Modifier.fillMaxSize(),
                         verticalArrangement = Arrangement.spacedBy(10.dp),
                         horizontalArrangement = Arrangement.spacedBy(10.dp),
-                        contentPadding = PaddingValues(bottom = if (cartItems.isNotEmpty()) 150.dp else 110.dp)
+                        contentPadding = PaddingValues(top = 4.dp, bottom = if (cartItems.isNotEmpty()) 170.dp else 100.dp)
                     ) {
                         items(sortedProducts, key = { it.id }) { product ->
                             val itemCartQty = cartItems.find { it.productId == product.id }?.quantity ?: 0.0
@@ -504,7 +521,7 @@ fun InventoryScreen(
             contentColor = MaterialTheme.colorScheme.onPrimary,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .padding(bottom = if (cartItems.isNotEmpty()) 78.dp else 20.dp, end = 20.dp)
+                .padding(bottom = if (cartItems.isNotEmpty()) 86.dp else 24.dp, end = 20.dp)
                 .testTag("fab_add_product")
         ) {
             Icon(imageVector = Icons.Default.Add, contentDescription = "Add Product")

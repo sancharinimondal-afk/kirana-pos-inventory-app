@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -24,6 +25,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.GridOn
 import androidx.compose.material.icons.filled.Inventory2
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.QrCode
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Tune
@@ -36,10 +38,15 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
@@ -311,9 +318,15 @@ fun ProductCard(
                             fontWeight = FontWeight.SemiBold,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
+                        val unitTrimmed = product.unit.trim()
+                        val stockText = if (unitTrimmed.firstOrNull()?.isDigit() == true) {
+                            "$stockDisplay pkts ($unitTrimmed)"
+                        } else {
+                            "$stockDisplay $unitTrimmed"
+                        }
                         Text(
-                            text = "$stockDisplay ${product.unit}",
-                            fontSize = 14.sp,
+                            text = stockText,
+                            fontSize = 13.5.sp,
                             fontWeight = FontWeight.ExtraBold,
                             color = stockColor
                         )
@@ -321,115 +334,61 @@ fun ProductCard(
                 }
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f))
             Spacer(modifier = Modifier.height(10.dp))
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f))
+            Spacer(modifier = Modifier.height(8.dp))
 
-            // Actions Row: Edit, Adjust Stock, Deactivate (Required per Phase 9)
-            FlowRow(
+            // Actions Row: Primary actions on the left, Cart & Overflow Menu on the right
+            Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                // 1. Edit Action
-                OutlinedButton(
-                    onClick = { onEdit(product) },
-                    shape = RoundedCornerShape(10.dp),
-                    modifier = Modifier
-                        .height(38.dp)
-                        .testTag("edit_product_${product.id}")
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Edit,
-                        contentDescription = "Edit",
-                        modifier = Modifier.size(15.dp)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text("Edit", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
-                }
-
-                // 2. Adjust Stock Action
-                Button(
-                    onClick = { onAdjustStock(product) },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                    ),
-                    shape = RoundedCornerShape(10.dp),
-                    modifier = Modifier
-                        .height(38.dp)
-                        .testTag("adjust_stock_${product.id}")
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Tune,
-                        contentDescription = "Adjust Stock",
-                        modifier = Modifier.size(15.dp)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text("Adjust Stock", fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                }
-
-                // 3. Deactivate / Reactivate Action
-                if (product.isActive) {
-                    OutlinedButton(
-                        onClick = { showDeactivateConfirm = true },
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            contentColor = MaterialTheme.colorScheme.error
-                        ),
-                        shape = RoundedCornerShape(10.dp),
-                        modifier = Modifier
-                            .height(38.dp)
-                            .testTag("deactivate_product_${product.id}")
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.VisibilityOff,
-                            contentDescription = "Deactivate",
-                            modifier = Modifier.size(15.dp)
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text("Deactivate", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
-                    }
-                } else if (onReactivate != null) {
-                    Button(
-                        onClick = { onReactivate(product) },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = GroceryGreen,
-                            contentColor = Color.White
-                        ),
-                        shape = RoundedCornerShape(10.dp),
-                        modifier = Modifier
-                            .height(38.dp)
-                            .testTag("reactivate_product_${product.id}")
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Refresh,
-                            contentDescription = "Reactivate",
-                            modifier = Modifier.size(15.dp)
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text("Reactivate", fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                    }
-                }
-
-                // Auxiliary Actions: Barcode Preview & Add to Bill
+                // Left Actions: Adjust Stock & Edit
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    IconButton(
-                        onClick = { showBarcodePreview = true },
+                    FilledTonalButton(
+                        onClick = { onAdjustStock(product) },
+                        shape = RoundedCornerShape(10.dp),
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
                         modifier = Modifier
-                            .size(38.dp)
-                            .testTag("barcode_preview_${product.id}")
+                            .height(36.dp)
+                            .testTag("adjust_stock_${product.id}")
                     ) {
                         Icon(
-                            imageVector = Icons.Default.QrCode,
-                            contentDescription = "Barcode Preview",
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.size(18.dp)
+                            imageVector = Icons.Default.Tune,
+                            contentDescription = "Adjust Stock",
+                            modifier = Modifier.size(15.dp)
                         )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("Adjust Stock", fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     }
 
+                    OutlinedButton(
+                        onClick = { onEdit(product) },
+                        shape = RoundedCornerShape(10.dp),
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+                        modifier = Modifier
+                            .height(36.dp)
+                            .testTag("edit_product_${product.id}")
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = "Edit",
+                            modifier = Modifier.size(14.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("Edit", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                    }
+                }
+
+                // Right Actions: Add to Cart & More Options (⋮)
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     if (onAddToCart != null && product.isActive) {
                         if (cartQuantity > 0.0) {
                             BadgedBox(
@@ -443,34 +402,122 @@ fun ProductCard(
                                     }
                                 }
                             ) {
-                                IconButton(
+                                FilledIconButton(
                                     onClick = { onAddToCart(product) },
+                                    colors = IconButtonDefaults.filledIconButtonColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
                                     modifier = Modifier
-                                        .size(38.dp)
-                                        .background(MaterialTheme.colorScheme.primaryContainer, CircleShape)
+                                        .size(36.dp)
                                         .testTag("add_to_cart_${product.id}")
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.AddShoppingCart,
-                                        contentDescription = "${cartQuantity.toInt()} in cart. Tap to add more",
+                                        contentDescription = "In Cart",
                                         tint = MaterialTheme.colorScheme.onPrimaryContainer,
                                         modifier = Modifier.size(18.dp)
                                     )
                                 }
                             }
                         } else {
-                            IconButton(
+                            FilledTonalIconButton(
                                 onClick = { onAddToCart(product) },
                                 modifier = Modifier
-                                    .size(38.dp)
-                                    .background(MaterialTheme.colorScheme.secondaryContainer, CircleShape)
+                                    .size(36.dp)
                                     .testTag("add_to_cart_${product.id}")
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.AddShoppingCart,
-                                    contentDescription = "Add to Bill",
-                                    tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                                    contentDescription = "Add to Cart",
                                     modifier = Modifier.size(18.dp)
+                                )
+                            }
+                        }
+                    }
+
+                    // Overflow Menu (⋮) for Barcode, Deactivate, and Delete
+                    Box {
+                        var showMenu by remember { mutableStateOf(false) }
+
+                        IconButton(
+                            onClick = { showMenu = true },
+                            modifier = Modifier
+                                .size(36.dp)
+                                .testTag("product_menu_${product.id}")
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.MoreVert,
+                                contentDescription = "More options",
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+
+                        DropdownMenu(
+                            expanded = showMenu,
+                            onDismissRequest = { showMenu = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("View / Print Barcode") },
+                                leadingIcon = {
+                                    Icon(
+                                        imageVector = Icons.Default.QrCode,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                },
+                                onClick = {
+                                    showMenu = false
+                                    showBarcodePreview = true
+                                }
+                            )
+
+                            if (product.isActive) {
+                                DropdownMenuItem(
+                                    text = { Text("Deactivate Product", color = MaterialTheme.colorScheme.error) },
+                                    leadingIcon = {
+                                        Icon(
+                                            imageVector = Icons.Default.VisibilityOff,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.error,
+                                            modifier = Modifier.size(18.dp)
+                                        )
+                                    },
+                                    onClick = {
+                                        showMenu = false
+                                        showDeactivateConfirm = true
+                                    }
+                                )
+                            } else if (onReactivate != null) {
+                                DropdownMenuItem(
+                                    text = { Text("Reactivate Product", color = GroceryGreen) },
+                                    leadingIcon = {
+                                        Icon(
+                                            imageVector = Icons.Default.Refresh,
+                                            contentDescription = null,
+                                            tint = GroceryGreen,
+                                            modifier = Modifier.size(18.dp)
+                                        )
+                                    },
+                                    onClick = {
+                                        showMenu = false
+                                        onReactivate(product)
+                                    }
+                                )
+                            }
+
+                            if (onDelete != null) {
+                                DropdownMenuItem(
+                                    text = { Text("Delete Product", color = MaterialTheme.colorScheme.error) },
+                                    leadingIcon = {
+                                        Icon(
+                                            imageVector = Icons.Default.Delete,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.error,
+                                            modifier = Modifier.size(18.dp)
+                                        )
+                                    },
+                                    onClick = {
+                                        showMenu = false
+                                        onDelete(product)
+                                    }
                                 )
                             }
                         }
