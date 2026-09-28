@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -26,6 +27,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -70,11 +72,13 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -452,7 +456,7 @@ fun PosBillingScreen(
                         items(cartItems, key = { it.productId }) { item ->
                             CartItemRow(
                                 item = item,
-                                onUpdateQty = { delta -> viewModel.updateCartItemQuantity(item.productId, item.quantity + delta) },
+                                onSetQuantity = { newQty -> viewModel.updateCartItemQuantity(item.productId, newQty) },
                                 onRemove = { viewModel.removeFromCart(item.productId) },
                                 onOpenDiscount = {
                                     editingDiscountItemId = item.productId
@@ -986,15 +990,19 @@ private fun CartItemsReviewSection(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 3.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
+                            .padding(vertical = 4.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Column(modifier = Modifier.weight(1f)) {
+                        // Item Label (Weight 0.52f)
+                        Column(
+                            modifier = Modifier
+                                .weight(0.52f)
+                                .padding(end = 4.dp)
+                        ) {
                             Text(
                                 text = item.name,
                                 fontSize = 12.sp,
-                                fontWeight = FontWeight.Medium,
+                                fontWeight = FontWeight.SemiBold,
                                 color = MaterialTheme.colorScheme.onSurface,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis
@@ -1002,16 +1010,30 @@ private fun CartItemsReviewSection(
                             val unitLabel = if (item.unit.isNotBlank()) " (${item.unit})" else ""
                             val discLabel = if (item.lineDiscount > 0) " (Disc -₹${item.lineDiscount})" else ""
                             Text(
-                                text = "Qty: $qtyDisplay × ₹${String.format(Locale.ENGLISH, "%.2f", item.rate)}$unitLabel$discLabel",
+                                text = "Rate: ₹${String.format(Locale.ENGLISH, "%.2f", item.rate)}$unitLabel$discLabel",
                                 fontSize = 10.5.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
+
+                        // Quantity (Weight 0.24f)
+                        Text(
+                            text = "Qty: $qtyDisplay",
+                            fontSize = 11.5.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.weight(0.24f),
+                            textAlign = TextAlign.Center
+                        )
+
+                        // Line Total (Weight 0.24f)
                         Text(
                             text = "₹${String.format(Locale.ENGLISH, "%.2f", item.totalAmount)}",
                             fontSize = 12.5.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface
+                            fontWeight = FontWeight.ExtraBold,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.weight(0.24f),
+                            textAlign = TextAlign.End
                         )
                     }
                 }
@@ -1101,7 +1123,7 @@ private fun CartListSection(
                 items(cartItems, key = { it.productId }) { item ->
                     CartItemRow(
                         item = item,
-                        onUpdateQty = { delta -> onUpdateQty(item.productId, item.quantity + delta) },
+                        onSetQuantity = { newQty -> onUpdateQty(item.productId, newQty) },
                         onRemove = { onRemoveItem(item.productId) },
                         onOpenDiscount = { onOpenDiscountDialog(item.productId, item.lineDiscount) }
                     )
@@ -1114,7 +1136,7 @@ private fun CartListSection(
 @Composable
 private fun CartItemRow(
     item: CartItem,
-    onUpdateQty: (Double) -> Unit,
+    onSetQuantity: (Double) -> Unit,
     onRemove: () -> Unit,
     onOpenDiscount: () -> Unit,
     modifier: Modifier = Modifier
@@ -1122,165 +1144,204 @@ private fun CartItemRow(
     Card(
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.5.dp),
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
         modifier = modifier
             .fillMaxWidth()
             .testTag("cart_item_${item.productId}")
     ) {
-        Column(modifier = Modifier.padding(12.dp)) {
-            // Row 1: Product Name & Remove Button
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // 1. Item Labels (Weight 0.42f): Product Name, Rate, Unit, MRP
+            Column(
+                modifier = Modifier
+                    .weight(0.42f)
+                    .padding(end = 6.dp)
             ) {
                 Text(
                     text = item.name,
                     fontWeight = FontWeight.Bold,
-                    fontSize = 14.sp,
+                    fontSize = 13.5.sp,
                     color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.weight(1f)
+                    overflow = TextOverflow.Ellipsis
                 )
-
-                // Large touch target remove button (>= 48dp)
-                IconButton(
-                    onClick = onRemove,
-                    modifier = Modifier
-                        .size(48.dp)
-                        .testTag("cart_remove_${item.productId}")
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Delete,
-                        contentDescription = "Remove Item",
-                        tint = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.size(20.dp)
+                Spacer(modifier = Modifier.height(2.dp))
+                val unitStr = if (item.unit.isNotBlank()) " / ${item.unit}" else ""
+                Text(
+                    text = "₹${String.format(Locale.ENGLISH, "%.2f", item.rate)}$unitStr",
+                    fontSize = 11.5.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                if (item.mrp > item.rate) {
+                    Text(
+                        text = "MRP: ₹${String.format(Locale.ENGLISH, "%.2f", item.mrp)}",
+                        fontSize = 10.sp,
+                        color = MaterialTheme.colorScheme.outline,
+                        textDecoration = TextDecoration.LineThrough
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(4.dp))
-
-            // Row 2: Rate, Unit, Stepper Quantity Controls
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+            // 2. Quantity Input (Weight 0.34f): Stepper (-) + Editable Decimal TextField with KeyboardOptions + Stepper (+)
+            Column(
+                modifier = Modifier
+                    .weight(0.34f)
+                    .padding(horizontal = 2.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Rate and Unit
-                Column {
-                    Text(
-                        text = "Rate: ₹${String.format(Locale.ENGLISH, "%.2f", item.rate)}" + if (item.unit.isNotBlank()) " / ${item.unit}" else "",
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    if (item.mrp > item.rate) {
-                        Text(
-                            text = "MRP: ₹${String.format(Locale.ENGLISH, "%.2f", item.mrp)}",
-                            fontSize = 11.sp,
-                            color = MaterialTheme.colorScheme.outline
-                        )
-                    }
+                var qtyInputText by remember(item.quantity) {
+                    val initial = if (item.quantity % 1.0 == 0.0) item.quantity.toInt().toString() else String.format(Locale.ENGLISH, "%.2f", item.quantity)
+                    mutableStateOf(initial)
                 }
 
-                // Quantity Controls (- / +) with large touch targets (>= 48dp)
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    IconButton(
-                        onClick = { onUpdateQty(-1.0) },
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    // Decrement Button
+                    Surface(
+                        shape = RoundedCornerShape(8.dp),
+                        color = MaterialTheme.colorScheme.surfaceVariant,
                         modifier = Modifier
-                            .size(48.dp)
-                            .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(10.dp))
+                            .size(32.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .clickable {
+                                val nextQty = (item.quantity - 1.0).coerceAtLeast(0.0)
+                                if (nextQty <= 0.0) {
+                                    onRemove()
+                                } else {
+                                    onSetQuantity(nextQty)
+                                }
+                            }
                             .testTag("cart_qty_minus_${item.productId}")
                     ) {
-                        Icon(imageVector = Icons.Default.Remove, contentDescription = "Decrease", modifier = Modifier.size(18.dp))
+                        Box(contentAlignment = Alignment.Center) {
+                            Icon(
+                                imageVector = Icons.Default.Remove,
+                                contentDescription = "Decrease",
+                                modifier = Modifier.size(16.dp),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                     }
 
-                    val qtyDisplay = if (item.quantity % 1.0 == 0.0) item.quantity.toInt().toString() else String.format(Locale.ENGLISH, "%.1f", item.quantity)
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier
-                            .padding(horizontal = 12.dp)
-                            .testTag("cart_qty_${item.productId}")
-                    ) {
-                        Text(
-                            text = qtyDisplay,
+                    // Decimal Quantity Input Box
+                    BasicTextField(
+                        value = qtyInputText,
+                        onValueChange = { input ->
+                            val filtered = input.filter { it.isDigit() || it == '.' }
+                            qtyInputText = filtered
+                            val parsed = filtered.toDoubleOrNull()
+                            if (parsed != null && parsed > 0.0) {
+                                onSetQuantity(parsed)
+                            }
+                        },
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Decimal,
+                            imeAction = ImeAction.Done
+                        ),
+                        singleLine = true,
+                        textStyle = TextStyle(
+                            fontSize = 13.5.sp,
                             fontWeight = FontWeight.ExtraBold,
-                            fontSize = 16.sp,
+                            textAlign = TextAlign.Center,
                             color = MaterialTheme.colorScheme.onSurface
-                        )
-                        Text(
-                            text = "Qty",
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.Medium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-
-                    IconButton(
-                        onClick = { onUpdateQty(1.0) },
+                        ),
                         modifier = Modifier
-                            .size(48.dp)
-                            .background(MaterialTheme.colorScheme.primaryContainer, RoundedCornerShape(10.dp))
+                            .widthIn(min = 34.dp, max = 52.dp)
+                            .padding(horizontal = 3.dp)
+                            .background(
+                                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
+                                shape = RoundedCornerShape(6.dp)
+                            )
+                            .padding(vertical = 5.dp, horizontal = 2.dp)
+                            .testTag("cart_qty_${item.productId}")
+                    )
+
+                    // Increment Button
+                    Surface(
+                        shape = RoundedCornerShape(8.dp),
+                        color = MaterialTheme.colorScheme.primaryContainer,
+                        modifier = Modifier
+                            .size(32.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .clickable { onSetQuantity(item.quantity + 1.0) }
                             .testTag("cart_qty_plus_${item.productId}")
                     ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Icon(
+                                imageVector = Icons.Default.Add,
+                                contentDescription = "Increase",
+                                modifier = Modifier.size(16.dp),
+                                tint = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = "Qty",
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            // 3. Price & Actions (Weight 0.24f): Line Total, Discount pill, Delete
+            Column(
+                modifier = Modifier
+                    .weight(0.24f)
+                    .padding(start = 4.dp),
+                horizontalAlignment = Alignment.End
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    Text(
+                        text = "₹${String.format(Locale.ENGLISH, "%.2f", item.totalAmount)}",
+                        fontWeight = FontWeight.ExtraBold,
+                        fontSize = 14.5.sp,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.testTag("cart_line_total_${item.productId}")
+                    )
+                    IconButton(
+                        onClick = onRemove,
+                        modifier = Modifier
+                            .size(30.dp)
+                            .testTag("cart_remove_${item.productId}")
+                    ) {
                         Icon(
-                            imageVector = Icons.Default.Add,
-                            contentDescription = "Increase",
-                            tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                            modifier = Modifier.size(18.dp)
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = "Remove Item",
+                            tint = MaterialTheme.colorScheme.error.copy(alpha = 0.85f),
+                            modifier = Modifier.size(16.dp)
                         )
                     }
                 }
-            }
 
-            Spacer(modifier = Modifier.height(6.dp))
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
-            Spacer(modifier = Modifier.height(6.dp))
-
-            // Row 3: Discount and Line Total
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // Discount tap target
+                // Discount Pill
                 Surface(
                     shape = RoundedCornerShape(6.dp),
                     color = if (item.lineDiscount > 0) Color(0xFFDCFCE7) else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
                     modifier = Modifier
                         .clickable { onOpenDiscount() }
-                        .sizeIn(minHeight = 36.dp)
                         .testTag("cart_line_discount_${item.productId}")
                 ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = if (item.lineDiscount > 0) "Discount: -₹${String.format(Locale.ENGLISH, "%.2f", item.lineDiscount)}" else "Add Discount (₹)",
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = if (item.lineDiscount > 0) Color(0xFF15803D) else MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-
-                // Line Total
-                Column(horizontalAlignment = Alignment.End) {
                     Text(
-                        text = "Line Total",
+                        text = if (item.lineDiscount > 0) "-₹${String.format(Locale.ENGLISH, "%.0f", item.lineDiscount)}" else "+Disc",
                         fontSize = 10.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Text(
-                        text = "₹" + String.format(Locale.ENGLISH, "%.2f", item.totalAmount),
-                        fontWeight = FontWeight.ExtraBold,
-                        fontSize = 16.sp,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.testTag("cart_line_total_${item.productId}")
+                        fontWeight = FontWeight.Bold,
+                        color = if (item.lineDiscount > 0) Color(0xFF15803D) else MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                     )
                 }
             }
