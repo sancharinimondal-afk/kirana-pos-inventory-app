@@ -77,6 +77,13 @@ import com.example.ui.theme.OutOfStockAlertColor
 import com.example.ui.theme.OutOfStockAlertContainer
 import java.util.Locale
 
+private data class ProductStockStyle(
+    val color: Color,
+    val bg: Color,
+    val icon: androidx.compose.ui.graphics.vector.ImageVector?,
+    val label: String
+)
+
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ProductCard(
@@ -93,12 +100,16 @@ fun ProductCard(
     var showBarcodePreview by remember { mutableStateOf(false) }
     var showDeactivateConfirm by remember { mutableStateOf(false) }
 
-    val (stockColor, stockBg, stockStatusLabel) = when {
-        !product.isActive -> Triple(Color(0xFF64748B), Color(0xFFF1F5F9), "Inactive")
-        product.currentStock <= 0.0 -> Triple(OutOfStockAlertColor, OutOfStockAlertContainer, "Out of Stock")
-        product.currentStock <= product.minStockAlert -> Triple(LowStockAlertColor, LowStockAlertContainer, "Low Stock")
-        else -> Triple(InStockColor, InStockContainer, "In Stock")
+    val stockStyle = when {
+        !product.isActive -> ProductStockStyle(Color(0xFF64748B), Color(0xFF334155).copy(alpha = 0.35f), null, "Inactive")
+        product.currentStock <= 0.0 -> ProductStockStyle(Color(0xFFEF4444), Color(0xFFEF4444).copy(alpha = 0.14f), Icons.Default.Warning, "Out of Stock")
+        product.currentStock <= product.minStockAlert -> ProductStockStyle(Color(0xFFF59E0B), Color(0xFFF59E0B).copy(alpha = 0.14f), Icons.Default.Warning, "Low Stock")
+        else -> ProductStockStyle(Color(0xFF10B981), Color(0xFF10B981).copy(alpha = 0.14f), Icons.Default.CheckCircle, "In Stock")
     }
+    val stockColor = stockStyle.color
+    val stockBg = stockStyle.bg
+    val stockIcon = stockStyle.icon
+    val stockStatusLabel = stockStyle.label
 
     val stockDisplay = if (product.currentStock % 1.0 == 0.0) {
         product.currentStock.toInt().toString()
@@ -115,12 +126,12 @@ fun ProductCard(
         modifier = modifier
             .fillMaxWidth()
             .testTag("product_card_${product.id}"),
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(18.dp),
         colors = CardDefaults.cardColors(
             containerColor = if (product.isActive) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
         ),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
-        elevation = CardDefaults.cardElevation(defaultElevation = if (product.isActive) 1.5.dp else 0.dp)
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.45f)),
+        elevation = CardDefaults.cardElevation(defaultElevation = if (product.isActive) 2.dp else 0.dp)
     ) {
         Column(modifier = Modifier.padding(14.dp)) {
             // Header Row: Thumbnail + Product Name & Barcode/SKU + Stock Status
@@ -148,27 +159,35 @@ fun ProductCard(
                         overflow = TextOverflow.Ellipsis
                     )
 
-                    Spacer(modifier = Modifier.height(2.dp))
+                    Spacer(modifier = Modifier.height(3.dp))
 
-                    // Barcode / SKU
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Default.QrCode,
-                            contentDescription = "Barcode/SKU",
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.size(13.dp)
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(
-                            text = product.sku,
-                            fontFamily = FontFamily.Monospace,
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Medium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                    // Barcode / SKU Chip
+                    Surface(
+                        shape = RoundedCornerShape(6.dp),
+                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.QrCode,
+                                contentDescription = "Barcode/SKU",
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.size(11.dp)
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = if (product.barcode.isNotBlank()) product.barcode else product.sku,
+                                fontFamily = FontFamily.Monospace,
+                                fontSize = 10.5.sp,
+                                fontWeight = FontWeight.Medium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                     }
 
-                    Spacer(modifier = Modifier.height(4.dp))
+                    Spacer(modifier = Modifier.height(5.dp))
 
                     // Category & Rack Tags
                     Row(
@@ -220,19 +239,19 @@ fun ProductCard(
 
                 Spacer(modifier = Modifier.width(8.dp))
 
-                // Low-stock status badge
+                // Low-stock status badge (Capsule pill)
                 Surface(
-                    shape = RoundedCornerShape(8.dp),
+                    shape = RoundedCornerShape(20.dp),
                     color = stockBg
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                        modifier = Modifier.padding(horizontal = 9.dp, vertical = 5.dp)
                     ) {
-                        if (product.isLowStock || product.isOutOfStock) {
+                        if (stockIcon != null) {
                             Icon(
-                                imageVector = Icons.Default.Warning,
-                                contentDescription = "Alert",
+                                imageVector = stockIcon,
+                                contentDescription = "Status",
                                 tint = stockColor,
                                 modifier = Modifier.size(12.dp)
                             )
@@ -250,25 +269,26 @@ fun ProductCard(
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            // Pricing & Current Stock Grid (Balanced 2-Part Layout to prevent clipping)
+            // Pricing & Current Stock Grid (Polished Retail Strip with Savings Pill)
             Surface(
                 shape = RoundedCornerShape(12.dp),
-                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f),
+                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.25f)),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 12.dp, vertical = 8.dp),
+                        .padding(horizontal = 12.dp, vertical = 10.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Left Column: Selling Price, MRP, Cost
+                    // Left Column: Selling Price, MRP, Savings Pill, and Cost Price
                     Column(modifier = Modifier.weight(1f)) {
-                        Row(verticalAlignment = Alignment.Bottom) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
                                 text = "₹$sellingDisplay",
-                                fontSize = 15.sp,
+                                fontSize = 16.5.sp,
                                 fontWeight = FontWeight.ExtraBold,
                                 color = MaterialTheme.colorScheme.primary
                             )
@@ -276,18 +296,33 @@ fun ProductCard(
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(
                                     text = "₹$mrpDisplay",
-                                    fontSize = 11.5.sp,
+                                    fontSize = 12.sp,
                                     fontWeight = FontWeight.Medium,
                                     textDecoration = TextDecoration.LineThrough,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.75f)
                                 )
+                                val discountAmt = product.mrp - product.sellingPrice
+                                val discountPct = ((discountAmt / product.mrp) * 100).toInt()
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Surface(
+                                    shape = RoundedCornerShape(4.dp),
+                                    color = Color(0xFF10B981).copy(alpha = 0.18f)
+                                ) {
+                                    Text(
+                                        text = if (discountPct > 0) "$discountPct% OFF" else "Save ₹${discountAmt.toInt()}",
+                                        fontSize = 9.5.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color(0xFF10B981),
+                                        modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp)
+                                    )
+                                }
                             }
                         }
-                        Spacer(modifier = Modifier.height(2.dp))
+                        Spacer(modifier = Modifier.height(3.dp))
                         Text(
                             text = "Cost: ₹$costDisplay",
-                            fontSize = 10.5.sp,
-                            fontWeight = FontWeight.Medium,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Normal,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
@@ -298,11 +333,13 @@ fun ProductCard(
                         modifier = Modifier.weight(1f)
                     ) {
                         Text(
-                            text = "Current Stock",
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            text = "CURRENT STOCK",
+                            fontSize = 9.sp,
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 0.5.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
                         )
+                        Spacer(modifier = Modifier.height(2.dp))
                         val unitTrimmed = product.unit.trim()
                         val stockText = if (unitTrimmed.firstOrNull()?.isDigit() == true) {
                             "$stockDisplay pkts ($unitTrimmed)"
@@ -311,7 +348,7 @@ fun ProductCard(
                         }
                         Text(
                             text = stockText,
-                            fontSize = 13.5.sp,
+                            fontSize = 14.sp,
                             fontWeight = FontWeight.ExtraBold,
                             color = stockColor
                         )
@@ -376,44 +413,43 @@ fun ProductCard(
                 ) {
                     if (onAddToCart != null && product.isActive) {
                         if (cartQuantity > 0.0) {
-                            BadgedBox(
-                                badge = {
-                                    Badge(
-                                        containerColor = MaterialTheme.colorScheme.primary,
-                                        contentColor = MaterialTheme.colorScheme.onPrimary
-                                    ) {
-                                        val displayQty = if (cartQuantity % 1.0 == 0.0) cartQuantity.toInt().toString() else String.format(Locale.ENGLISH, "%.1f", cartQuantity)
-                                        Text(text = displayQty, fontSize = 10.sp, fontWeight = FontWeight.Bold)
-                                    }
-                                }
+                            Button(
+                                onClick = { onAddToCart(product) },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.primary,
+                                    contentColor = MaterialTheme.colorScheme.onPrimary
+                                ),
+                                shape = RoundedCornerShape(10.dp),
+                                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp),
+                                modifier = Modifier
+                                    .height(36.dp)
+                                    .testTag("add_to_cart_${product.id}")
                             ) {
-                                FilledIconButton(
-                                    onClick = { onAddToCart(product) },
-                                    colors = IconButtonDefaults.filledIconButtonColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
-                                    modifier = Modifier
-                                        .size(36.dp)
-                                        .testTag("add_to_cart_${product.id}")
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.AddShoppingCart,
-                                        contentDescription = "In Cart",
-                                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                                        modifier = Modifier.size(18.dp)
-                                    )
-                                }
+                                Icon(
+                                    imageVector = Icons.Default.AddShoppingCart,
+                                    contentDescription = "In Cart",
+                                    modifier = Modifier.size(15.dp)
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                val displayQty = if (cartQuantity % 1.0 == 0.0) cartQuantity.toInt().toString() else String.format(Locale.ENGLISH, "%.1f", cartQuantity)
+                                Text(text = "$displayQty in cart", fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
                             }
                         } else {
-                            FilledTonalIconButton(
+                            FilledTonalButton(
                                 onClick = { onAddToCart(product) },
+                                shape = RoundedCornerShape(10.dp),
+                                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp),
                                 modifier = Modifier
-                                    .size(36.dp)
+                                    .height(36.dp)
                                     .testTag("add_to_cart_${product.id}")
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.AddShoppingCart,
                                     contentDescription = "Add to Cart",
-                                    modifier = Modifier.size(18.dp)
+                                    modifier = Modifier.size(15.dp)
                                 )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text("Cart +", fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
                             }
                         }
                     }

@@ -152,7 +152,7 @@ fun InventoryScreen(
                     },
                     singleLine = true,
                     colors = kiranaTextFieldColors(),
-                    shape = RoundedCornerShape(12.dp),
+                    shape = RoundedCornerShape(14.dp),
                     modifier = Modifier
                         .weight(1f)
                         .testTag("inventory_search_field")
@@ -161,22 +161,27 @@ fun InventoryScreen(
                 // Add Product Button
                 Button(
                     onClick = { onOpenAddProduct(null) },
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    ),
+                    shape = RoundedCornerShape(14.dp),
                     contentPadding = PaddingValues(horizontal = 14.dp, vertical = 12.dp),
-                    modifier = Modifier.testTag("inventory_add_product_btn")
+                    modifier = Modifier
+                        .height(50.dp)
+                        .testTag("inventory_add_product_btn")
                 ) {
                     Icon(imageVector = Icons.Default.Add, contentDescription = "Add", modifier = Modifier.size(18.dp))
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("Add", fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                    Text("Add", fontWeight = FontWeight.Bold, fontSize = 13.5.sp)
                 }
 
                 // Export CSV Icon Button
                 FilledTonalIconButton(
                     onClick = { viewModel.exportCsv(context) },
-                    shape = RoundedCornerShape(12.dp),
+                    shape = RoundedCornerShape(14.dp),
                     modifier = Modifier
-                        .size(46.dp)
+                        .size(50.dp)
                         .testTag("inventory_export_csv_btn")
                 ) {
                     Icon(
@@ -187,7 +192,7 @@ fun InventoryScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
             // 2. UNIFIED FILTER ROW: Stock Status Chips + Category Chips (Single horizontal scroll)
             val standardCats = KiranaCategories.ALL_CATEGORIES
@@ -208,9 +213,10 @@ fun InventoryScreen(
                             viewModel.selectedCategory.value = "All"
                         },
                         label = { Text("All ($activeProductsCount)", fontSize = 11.5.sp, fontWeight = FontWeight.Bold) },
+                        shape = RoundedCornerShape(10.dp),
                         colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = MaterialTheme.colorScheme.primary,
-                            selectedLabelColor = MaterialTheme.colorScheme.onPrimary
+                            selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                            selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
                         ),
                         modifier = Modifier.testTag("tab_filter_all")
                     )
@@ -227,6 +233,7 @@ fun InventoryScreen(
                             { Icon(Icons.Default.Warning, contentDescription = null, tint = LowStockAlertColor, modifier = Modifier.size(12.dp)) }
                         } else null,
                         label = { Text("Low Stock (${lowStockProducts.size})", fontSize = 11.5.sp, fontWeight = FontWeight.Bold) },
+                        shape = RoundedCornerShape(10.dp),
                         colors = FilterChipDefaults.filterChipColors(
                             selectedContainerColor = LowStockAlertColor.copy(alpha = 0.2f),
                             selectedLabelColor = LowStockAlertColor
@@ -246,6 +253,7 @@ fun InventoryScreen(
                             { Icon(Icons.Default.Warning, contentDescription = null, tint = OutOfStockAlertColor, modifier = Modifier.size(12.dp)) }
                         } else null,
                         label = { Text("Out of Stock (${outOfStockProducts.size})", fontSize = 11.5.sp, fontWeight = FontWeight.Bold) },
+                        shape = RoundedCornerShape(10.dp),
                         colors = FilterChipDefaults.filterChipColors(
                             selectedContainerColor = OutOfStockAlertColor.copy(alpha = 0.2f),
                             selectedLabelColor = OutOfStockAlertColor
@@ -263,6 +271,7 @@ fun InventoryScreen(
                                 viewModel.stockFilter.value = if (stockFilter == StockFilterOption.INACTIVE) StockFilterOption.ALL else StockFilterOption.INACTIVE
                             },
                             label = { Text("Inactive (${inactiveProducts.size})", fontSize = 11.5.sp) },
+                            shape = RoundedCornerShape(10.dp),
                             modifier = Modifier.testTag("tab_filter_inactive")
                         )
                     }
@@ -289,9 +298,10 @@ fun InventoryScreen(
                                 fontWeight = if (isCatSelected) FontWeight.Bold else FontWeight.Medium
                             )
                         },
+                        shape = RoundedCornerShape(10.dp),
                         colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = MaterialTheme.colorScheme.secondary,
-                            selectedLabelColor = MaterialTheme.colorScheme.onSecondary
+                            selectedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+                            selectedLabelColor = MaterialTheme.colorScheme.onSecondaryContainer
                         ),
                         modifier = Modifier.testTag("cat_chip_${category.lowercase().replace(" ", "_")}")
                     )
@@ -310,7 +320,7 @@ fun InventoryScreen(
             ) {
                 Text(
                     text = "${filteredProducts.size} ${if (filteredProducts.size == 1) "product" else "products"}",
-                    fontSize = 12.sp,
+                    fontSize = 12.5.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -319,9 +329,9 @@ fun InventoryScreen(
                 Box {
                     var showSortMenu by remember { mutableStateOf(false) }
                     Surface(
-                        shape = RoundedCornerShape(8.dp),
-                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
-                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
+                        shape = RoundedCornerShape(20.dp),
+                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)),
                         modifier = Modifier
                             .clickable { showSortMenu = true }
                             .padding(horizontal = 2.dp)
@@ -329,7 +339,7 @@ fun InventoryScreen(
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
                         ) {
                             Text(
                                 text = "Sort: $sortOption",
@@ -337,7 +347,7 @@ fun InventoryScreen(
                                 fontWeight = FontWeight.SemiBold,
                                 color = MaterialTheme.colorScheme.primary
                             )
-                            Spacer(modifier = Modifier.width(4.dp))
+                            Spacer(modifier = Modifier.width(3.dp))
                             Icon(
                                 imageVector = Icons.Default.ArrowDropDown,
                                 contentDescription = "Change sort",
