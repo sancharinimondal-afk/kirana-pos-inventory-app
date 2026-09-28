@@ -26,6 +26,7 @@ import androidx.compose.material.icons.filled.CloudDownload
 import androidx.compose.material.icons.filled.CloudUpload
 import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.Inventory2
+import androidx.compose.material.icons.filled.LocalShipping
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Notifications
@@ -105,10 +106,10 @@ import kotlinx.coroutines.launch
 
 sealed class KiranaScreen(val route: String, val title: String, val icon: ImageVector) {
     object Dashboard : KiranaScreen("dashboard", "Dashboard", Icons.Default.Dashboard)
-    object Pos : KiranaScreen("pos", "Sales", Icons.Default.PointOfSale)
+    object Pos : KiranaScreen("pos", "Cart", Icons.Default.ShoppingCart)
     object Inventory : KiranaScreen("inventory", "Products", Icons.Default.Inventory2)
     object Transactions : KiranaScreen("transactions", "Bills", Icons.AutoMirrored.Filled.ReceiptLong)
-    object Purchase : KiranaScreen("purchase", "Purchase", Icons.Default.ShoppingCart)
+    object Purchase : KiranaScreen("purchase", "Purchase", Icons.Default.LocalShipping)
     object Reports : KiranaScreen("reports", "Reports", Icons.Default.BarChart)
     object StockAlert : KiranaScreen("stock_alert", "Stock Alert", Icons.Default.Warning)
     object Backup : KiranaScreen("backup", "Backup & Restore", Icons.Default.CloudUpload)
@@ -287,7 +288,23 @@ fun KiranaApp(
                                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
                                         fontSize = 14.sp
                                     )
-                                    if (screen == KiranaScreen.StockAlert && totalLowStockCount > 0) {
+                                    if (screen == KiranaScreen.Pos && cartItems.isNotEmpty()) {
+                                        Spacer(modifier = Modifier.weight(1f))
+                                        Surface(
+                                            shape = CircleShape,
+                                            color = MaterialTheme.colorScheme.primary,
+                                            modifier = Modifier.size(20.dp)
+                                        ) {
+                                            Box(contentAlignment = Alignment.Center) {
+                                                Text(
+                                                    text = cartItems.size.toString(),
+                                                    color = MaterialTheme.colorScheme.onPrimary,
+                                                    fontSize = 11.sp,
+                                                    fontWeight = FontWeight.Bold
+                                                )
+                                            }
+                                        }
+                                    } else if (screen == KiranaScreen.StockAlert && totalLowStockCount > 0) {
                                         Spacer(modifier = Modifier.weight(1f))
                                         Surface(
                                             shape = CircleShape,
@@ -377,9 +394,9 @@ fun KiranaApp(
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Text(
                                         text = if (currentRoute == KiranaScreen.Dashboard.route) shopSettings.shopName else when (currentRoute) {
-                                            KiranaScreen.Pos.route -> "New Sale"
+                                            KiranaScreen.Pos.route -> "Sales & Cart"
                                             KiranaScreen.Inventory.route -> "Products"
-                                            KiranaScreen.Purchase.route -> "Purchase Entry"
+                                            KiranaScreen.Purchase.route -> "Purchase (Stock Inward)"
                                             KiranaScreen.Reports.route -> "Reports & Analytics"
                                             KiranaScreen.StockAlert.route -> "Stock Alert"
                                             KiranaScreen.Backup.route -> "Backup & Restore"
@@ -428,6 +445,39 @@ fun KiranaApp(
                                 }
                             },
                             actions = {
+                                // Shopping Cart Top Action with Badge
+                                IconButton(
+                                    onClick = {
+                                        navController.navigate(KiranaScreen.Pos.route) {
+                                            popUpTo(navController.graph.findStartDestination().id) {
+                                                saveState = true
+                                            }
+                                            launchSingleTop = true
+                                            restoreState = true
+                                        }
+                                    },
+                                    modifier = Modifier.testTag("topbar_cart_button")
+                                ) {
+                                    BadgedBox(
+                                        badge = {
+                                            if (cartItems.isNotEmpty()) {
+                                                Badge(
+                                                    containerColor = MaterialTheme.colorScheme.primary,
+                                                    contentColor = MaterialTheme.colorScheme.onPrimary
+                                                ) {
+                                                    Text(cartItems.size.toString(), fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                                                }
+                                            }
+                                        }
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.ShoppingCart,
+                                            contentDescription = "View Cart",
+                                            tint = if (currentRoute == KiranaScreen.Pos.route) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                                        )
+                                    }
+                                }
+
                                 // Barcode Scanner Top Action
                                 IconButton(
                                     onClick = { showScannerDialog = true },
@@ -651,6 +701,15 @@ fun KiranaApp(
                         },
                         onOpenScanner = {
                             showScannerDialog = true
+                        },
+                        onNavigateToCart = {
+                            navController.navigate(KiranaScreen.Pos.route) {
+                                popUpTo(navController.graph.findStartDestination().id) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
                         }
                     )
                 }

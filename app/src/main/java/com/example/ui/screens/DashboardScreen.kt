@@ -29,6 +29,7 @@ import androidx.compose.material.icons.filled.CloudUpload
 import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Inventory2
+import androidx.compose.material.icons.filled.LocalShipping
 import androidx.compose.material.icons.filled.MonetizationOn
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PointOfSale
@@ -39,6 +40,8 @@ import androidx.compose.material.icons.filled.Storefront
 import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -128,6 +131,9 @@ fun DashboardScreen(
     val outOfStockCount by viewModel.outOfStockCount.collectAsStateWithLifecycle()
     val totalCostValue by viewModel.totalCostValue.collectAsStateWithLifecycle()
 
+    val cartItems by viewModel.cartItems.collectAsStateWithLifecycle()
+    val cartGrandTotal by viewModel.cartGrandTotal.collectAsStateWithLifecycle()
+
     val totalLowStockCount = lowStockCount + outOfStockCount
 
     val currentDateStr = remember {
@@ -137,10 +143,10 @@ fun DashboardScreen(
     var showCustomersDialog by remember { mutableStateOf(false) }
 
     val quickActions = listOf(
-        QuickActionItem("New Sale", Icons.Default.PointOfSale, Color(0xFFCCFBF1), Color(0xFF0F766E)) {
+        QuickActionItem("Cart / POS", Icons.Default.ShoppingCart, Color(0xFFCCFBF1), Color(0xFF0F766E)) {
             onNavigateToPos()
         },
-        QuickActionItem("Purchase", Icons.Default.ShoppingCart, Color(0xFFEFF6FF), Color(0xFF2563EB)) {
+        QuickActionItem("Purchase", Icons.Default.LocalShipping, Color(0xFFEFF6FF), Color(0xFF2563EB)) {
             onOpenPurchase()
         },
         QuickActionItem("Add Product", Icons.Default.Add, Color(0xFFF0FDF4), Color(0xFF16A34A)) {
@@ -238,6 +244,77 @@ fun DashboardScreen(
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(22.dp)
                         )
+                    }
+                }
+            }
+        }
+
+        // Active Cart Banner (Visible whenever cart has items)
+        if (cartItems.isNotEmpty()) {
+            item {
+                Card(
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+                    border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onNavigateToPos() }
+                        .testTag("dashboard_active_cart_card")
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(14.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            BadgedBox(
+                                badge = {
+                                    Badge(
+                                        containerColor = MaterialTheme.colorScheme.primary,
+                                        contentColor = MaterialTheme.colorScheme.onPrimary
+                                    ) {
+                                        Text(cartItems.size.toString(), fontWeight = FontWeight.Bold, fontSize = 11.sp)
+                                    }
+                                }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.ShoppingCart,
+                                    contentDescription = "Active Cart",
+                                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                                    modifier = Modifier.size(28.dp)
+                                )
+                            }
+
+                            Column {
+                                Text(
+                                    text = "Active Cart (${cartItems.size} ${if (cartItems.size == 1) "item" else "items"})",
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                                )
+                                Text(
+                                    text = "Total: ₹${String.format(Locale.ENGLISH, "%.2f", cartGrandTotal)}",
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.ExtraBold,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                        }
+
+                        Button(
+                            onClick = onNavigateToPos,
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                            shape = RoundedCornerShape(10.dp),
+                            contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp)
+                        ) {
+                            Text("VIEW CART →", fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                        }
                     }
                 }
             }

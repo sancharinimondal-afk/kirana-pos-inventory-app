@@ -30,6 +30,8 @@ import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -77,6 +79,7 @@ fun ProductCard(
     onDeactivate: (ProductItem) -> Unit,
     onReactivate: ((ProductItem) -> Unit)? = null,
     onAddToCart: ((ProductItem) -> Unit)? = null,
+    cartQuantity: Double = 0.0,
     onDelete: ((ProductItem) -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
@@ -428,19 +431,48 @@ fun ProductCard(
                     }
 
                     if (onAddToCart != null && product.isActive) {
-                        IconButton(
-                            onClick = { onAddToCart(product) },
-                            modifier = Modifier
-                                .size(38.dp)
-                                .background(MaterialTheme.colorScheme.secondaryContainer, CircleShape)
-                                .testTag("add_to_cart_${product.id}")
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.AddShoppingCart,
-                                contentDescription = "Add to Bill",
-                                tint = MaterialTheme.colorScheme.onSecondaryContainer,
-                                modifier = Modifier.size(18.dp)
-                            )
+                        if (cartQuantity > 0.0) {
+                            BadgedBox(
+                                badge = {
+                                    Badge(
+                                        containerColor = MaterialTheme.colorScheme.primary,
+                                        contentColor = MaterialTheme.colorScheme.onPrimary
+                                    ) {
+                                        val displayQty = if (cartQuantity % 1.0 == 0.0) cartQuantity.toInt().toString() else String.format(Locale.ENGLISH, "%.1f", cartQuantity)
+                                        Text(text = displayQty, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                                    }
+                                }
+                            ) {
+                                IconButton(
+                                    onClick = { onAddToCart(product) },
+                                    modifier = Modifier
+                                        .size(38.dp)
+                                        .background(MaterialTheme.colorScheme.primaryContainer, CircleShape)
+                                        .testTag("add_to_cart_${product.id}")
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.AddShoppingCart,
+                                        contentDescription = "${cartQuantity.toInt()} in cart. Tap to add more",
+                                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                }
+                            }
+                        } else {
+                            IconButton(
+                                onClick = { onAddToCart(product) },
+                                modifier = Modifier
+                                    .size(38.dp)
+                                    .background(MaterialTheme.colorScheme.secondaryContainer, CircleShape)
+                                    .testTag("add_to_cart_${product.id}")
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.AddShoppingCart,
+                                    contentDescription = "Add to Bill",
+                                    tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
                         }
                     }
                 }

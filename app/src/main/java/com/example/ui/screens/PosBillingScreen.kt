@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -60,10 +61,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
@@ -83,6 +86,7 @@ import com.example.data.model.ProductItem
 import com.example.ui.KiranaViewModel
 import com.example.ui.theme.GroceryOrange
 import com.example.ui.theme.UpiPurple
+import kotlinx.coroutines.launch
 import java.util.Locale
 
 @Composable
@@ -131,13 +135,13 @@ fun PosBillingScreen(
         }
     }
 
-    // Matching products for quick suggestions
+    // Matching or quick-add popular products
     val matchingProducts = remember(searchQuery, allProducts) {
         val q = searchQuery.trim()
         if (q.length >= 2) {
-            allProducts.filter { it.isActive && (it.name.contains(q, ignoreCase = true) || it.barcode.contains(q, ignoreCase = true) || it.sku.contains(q, ignoreCase = true)) }.take(6)
+            allProducts.filter { it.isActive && (it.name.contains(q, ignoreCase = true) || it.barcode.contains(q, ignoreCase = true) || it.sku.contains(q, ignoreCase = true)) }.take(8)
         } else {
-            emptyList()
+            allProducts.filter { it.isActive && it.currentStock > 0 }.take(8)
         }
     }
 
@@ -240,6 +244,11 @@ fun PosBillingScreen(
                         verticalArrangement = Arrangement.SpaceBetween
                     ) {
                         Column {
+                            if (cartItems.isNotEmpty()) {
+                                CartItemsReviewSection(cartItems = cartItems)
+                                Spacer(modifier = Modifier.height(12.dp))
+                            }
+
                             PosBottomSummary(
                                 subtotal = subtotal,
                                 discountAmount = discountAmount,
@@ -327,144 +336,301 @@ fun PosBillingScreen(
                 }
             }
         } else {
-            // Handheld / Compact Screen: Stacked layout
-            Column(modifier = Modifier.fillMaxSize()) {
-                PosTopBar(
-                    searchQuery = searchQuery,
-                    onSearchChange = { searchQuery = it },
-                    onSearchSubmit = {
-                        if (searchQuery.isNotBlank()) {
-                            viewModel.handleScannedBarcodeInPos(searchQuery)
-                            searchQuery = ""
-                            focusManager.clearFocus()
-                        }
-                    },
-                    onOpenScanner = onOpenScanner,
-                    onOpenQuickItem = { showQuickItemDialog = true }
-                )
+            // Handheld / Compact Screen: Unified scrollable layout so all cart items are fully visible
+            val listState = rememberLazyListState()
+            val coroutineScope = rememberCoroutineScope()
 
-                if (matchingProducts.isNotEmpty()) {
-                    QuickProductSuggestionsRow(
-                        products = matchingProducts,
-                        onProductSelected = { prod ->
-                            viewModel.addToCart(prod, 1.0)
-                            searchQuery = ""
-                            focusManager.clearFocus()
-                        }
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(6.dp))
-
-                // Cart items scrollable list (weights to leave space for pinned bottom panel)
-                CartListSection(
-                    cartItems = cartItems,
-                    onUpdateQty = { id, qty -> viewModel.updateCartItemQuantity(id, qty) },
-                    onRemoveItem = { id -> viewModel.removeFromCart(id) },
-                    onOpenDiscountDialog = { id, currentDisc ->
-                        editingDiscountItemId = id
-                        lineDiscountInput = if (currentDisc > 0) currentDisc.toString() else ""
-                    },
-                    onClearCart = { viewModel.clearCart() },
-                    modifier = Modifier.weight(1f)
-                )
-
-                Spacer(modifier = Modifier.height(6.dp))
-
-                // Bottom Checkout Section
-                Card(
-                    shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                    modifier = Modifier.fillMaxWidth()
+            Box(modifier = Modifier.fillMaxSize()) {
+                LazyColumn(
+                    state = listState,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .testTag("pos_compact_scroll_list"),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    contentPadding = PaddingValues(bottom = if (cartItems.isNotEmpty()) 88.dp else 16.dp)
                 ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 12.dp, vertical = 10.dp)
-                    ) {
-                        PosBottomSummary(
-                            subtotal = subtotal,
-                            discountAmount = discountAmount,
-                            discountInput = discountInput,
-                            onDiscountInputChange = { input ->
-                                discountInput = input
-                                val parsed = input.toDoubleOrNull() ?: 0.0
-                                viewModel.discountAmount.value = parsed.coerceAtLeast(0.0)
+                    item {
+                        PosTopBar(
+                            searchQuery = searchQuery,
+                            onSearchChange = { searchQuery = it },
+                            onSearchSubmit = {
+                                if (searchQuery.isNotBlank()) {
+                                    viewModel.handleScannedBarcodeInPos(searchQuery)
+                                    searchQuery = ""
+                                    focusManager.clearFocus()
+                                }
                             },
-                            onApplyPresetDiscount = { preset ->
-                                discountInput = preset.toInt().toString()
-                                viewModel.discountAmount.value = preset
-                            },
-                            gstAmount = gstAmount,
-                            grandTotal = grandTotal
+                            onOpenScanner = onOpenScanner,
+                            onOpenQuickItem = { showQuickItemDialog = true }
                         )
+                    }
 
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        PosPaymentSection(
-                            paymentMode = paymentMode,
-                            onSelectPaymentMode = { viewModel.paymentMode.value = it },
-                            cashReceived = cashReceived,
-                            cashReceivedInput = cashReceivedInput,
-                            onCashInputChange = { input ->
-                                cashReceivedInput = input
-                                val parsed = input.toDoubleOrNull() ?: 0.0
-                                viewModel.cashReceived.value = parsed.coerceAtLeast(0.0)
-                            },
-                            grandTotal = grandTotal,
-                            changeDue = changeDue,
-                            onQuickCashExact = {
-                                cashReceivedInput = grandTotal.toInt().toString()
-                                viewModel.cashReceived.value = grandTotal
-                            },
-                            onQuickCashAmount = { amount ->
-                                cashReceivedInput = amount.toInt().toString()
-                                viewModel.cashReceived.value = amount
-                            },
-                            selectedCustomerId = selectedCustomerId,
-                            customerName = customerName,
-                            customerPhone = customerPhone,
-                            currentCustomerDue = currentCustomerDue,
-                            onOpenCustomerPicker = { showCustomerPicker = true },
-                            paymentReference = paymentReference,
-                            onPaymentReferenceChange = { viewModel.paymentReference.value = it }
-                        )
-
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        if (checkoutBlockReason != null && cartItems.isNotEmpty()) {
-                            Text(
-                                text = "⚠ $checkoutBlockReason",
-                                color = Color(0xFFDC2626),
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier.padding(bottom = 4.dp)
+                    if (matchingProducts.isNotEmpty()) {
+                        item {
+                            QuickProductSuggestionsRow(
+                                products = matchingProducts,
+                                onProductSelected = { prod ->
+                                    viewModel.addToCart(prod, 1.0)
+                                    searchQuery = ""
+                                    focusManager.clearFocus()
+                                }
                             )
                         }
+                    }
 
-                        Button(
-                            onClick = { viewModel.completeSale() },
-                            enabled = canCheckout,
+                    // Cart items header
+                    item {
+                        Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(52.dp)
-                                .testTag("pos_complete_sale_btn"),
-                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-                            shape = RoundedCornerShape(12.dp)
+                                .padding(horizontal = 4.dp, vertical = 2.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.PointOfSale,
-                                contentDescription = null,
-                                modifier = Modifier.size(20.dp)
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
                             Text(
-                                text = "COMPLETE SALE",
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.ExtraBold
+                                text = "Cart Items (${cartItems.size})",
+                                fontSize = 15.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurface
                             )
+                            if (cartItems.isNotEmpty()) {
+                                Text(
+                                    text = "Clear All",
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = MaterialTheme.colorScheme.error,
+                                    modifier = Modifier
+                                        .clickable { viewModel.clearCart() }
+                                        .padding(4.dp)
+                                        .testTag("clear_cart_btn")
+                                )
+                            }
+                        }
+                    }
+
+                    // Cart Items List
+                    if (cartItems.isEmpty()) {
+                        item {
+                            Card(
+                                shape = RoundedCornerShape(14.dp),
+                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 12.dp)
+                            ) {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(24.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.ShoppingCart,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(48.dp),
+                                        tint = MaterialTheme.colorScheme.outline
+                                    )
+                                    Spacer(modifier = Modifier.height(10.dp))
+                                    Text(
+                                        text = "Cart is Empty",
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Text(
+                                        text = "Scan barcode or search product to start billing",
+                                        fontSize = 12.sp,
+                                        color = MaterialTheme.colorScheme.outline,
+                                        textAlign = TextAlign.Center
+                                    )
+                                }
+                            }
+                        }
+                    } else {
+                        items(cartItems, key = { it.productId }) { item ->
+                            CartItemRow(
+                                item = item,
+                                onUpdateQty = { delta -> viewModel.updateCartItemQuantity(item.productId, item.quantity + delta) },
+                                onRemove = { viewModel.removeFromCart(item.productId) },
+                                onOpenDiscount = {
+                                    editingDiscountItemId = item.productId
+                                    lineDiscountInput = if (item.lineDiscount > 0) item.lineDiscount.toString() else ""
+                                }
+                            )
+                        }
+                    }
+
+                    // Bottom Checkout & Payment Section
+                    if (cartItems.isNotEmpty()) {
+                        item {
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Card(
+                                shape = RoundedCornerShape(16.dp),
+                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
+                                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .testTag("pos_checkout_section_card")
+                            ) {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 14.dp, vertical = 12.dp)
+                                ) {
+                                    CartItemsReviewSection(cartItems = cartItems)
+                                    Spacer(modifier = Modifier.height(10.dp))
+
+                                    PosBottomSummary(
+                                        subtotal = subtotal,
+                                        discountAmount = discountAmount,
+                                        discountInput = discountInput,
+                                        onDiscountInputChange = { input ->
+                                            discountInput = input
+                                            val parsed = input.toDoubleOrNull() ?: 0.0
+                                            viewModel.discountAmount.value = parsed.coerceAtLeast(0.0)
+                                        },
+                                        onApplyPresetDiscount = { preset ->
+                                            discountInput = preset.toInt().toString()
+                                            viewModel.discountAmount.value = preset
+                                        },
+                                        gstAmount = gstAmount,
+                                        grandTotal = grandTotal
+                                    )
+
+                                    Spacer(modifier = Modifier.height(8.dp))
+
+                                    PosPaymentSection(
+                                        paymentMode = paymentMode,
+                                        onSelectPaymentMode = { viewModel.paymentMode.value = it },
+                                        cashReceived = cashReceived,
+                                        cashReceivedInput = cashReceivedInput,
+                                        onCashInputChange = { input ->
+                                            cashReceivedInput = input
+                                            val parsed = input.toDoubleOrNull() ?: 0.0
+                                            viewModel.cashReceived.value = parsed.coerceAtLeast(0.0)
+                                        },
+                                        grandTotal = grandTotal,
+                                        changeDue = changeDue,
+                                        onQuickCashExact = {
+                                            cashReceivedInput = grandTotal.toInt().toString()
+                                            viewModel.cashReceived.value = grandTotal
+                                        },
+                                        onQuickCashAmount = { amount ->
+                                            cashReceivedInput = amount.toInt().toString()
+                                            viewModel.cashReceived.value = amount
+                                        },
+                                        selectedCustomerId = selectedCustomerId,
+                                        customerName = customerName,
+                                        customerPhone = customerPhone,
+                                        currentCustomerDue = currentCustomerDue,
+                                        onOpenCustomerPicker = { showCustomerPicker = true },
+                                        paymentReference = paymentReference,
+                                        onPaymentReferenceChange = { viewModel.paymentReference.value = it }
+                                    )
+
+                                    Spacer(modifier = Modifier.height(8.dp))
+
+                                    if (checkoutBlockReason != null) {
+                                        Text(
+                                            text = "⚠ $checkoutBlockReason",
+                                            color = Color(0xFFDC2626),
+                                            fontSize = 11.5.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            modifier = Modifier.padding(bottom = 6.dp)
+                                        )
+                                    }
+
+                                    Button(
+                                        onClick = { viewModel.completeSale() },
+                                        enabled = canCheckout,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(52.dp)
+                                            .testTag("pos_complete_sale_btn"),
+                                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                                        shape = RoundedCornerShape(12.dp)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.PointOfSale,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(20.dp)
+                                        )
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Text(
+                                            text = "COMPLETE SALE (₹${String.format(Locale.ENGLISH, "%.2f", grandTotal)})",
+                                            fontSize = 15.sp,
+                                            fontWeight = FontWeight.ExtraBold
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Sticky Bottom Bar when cart has items
+                if (cartItems.isNotEmpty()) {
+                    Surface(
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .fillMaxWidth()
+                            .shadow(8.dp, RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)),
+                        shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
+                        color = MaterialTheme.colorScheme.surface,
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 14.dp, vertical = 8.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column {
+                                Text(
+                                    text = "${cartItems.size} ${if (cartItems.size == 1) "item" else "items"} in cart",
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                Text(
+                                    text = "₹${String.format(Locale.ENGLISH, "%.2f", grandTotal)}",
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.ExtraBold,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            }
+
+                            Button(
+                                onClick = {
+                                    if (canCheckout) {
+                                        viewModel.completeSale()
+                                    } else {
+                                        coroutineScope.launch {
+                                            listState.animateScrollToItem(index = cartItems.size + 3)
+                                        }
+                                    }
+                                },
+                                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                                shape = RoundedCornerShape(10.dp),
+                                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                                modifier = Modifier.testTag("pos_sticky_action_btn")
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.PointOfSale,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(
+                                    text = if (canCheckout) "COMPLETE SALE" else "PROCEED TO PAY",
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
                         }
                     }
                 }
@@ -740,6 +906,13 @@ private fun QuickProductSuggestionsRow(
                     modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "Add",
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(14.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = product.name,
                         fontSize = 12.sp,
@@ -753,6 +926,92 @@ private fun QuickProductSuggestionsRow(
                         fontWeight = FontWeight.ExtraBold,
                         color = MaterialTheme.colorScheme.primary
                     )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun CartItemsReviewSection(
+    cartItems: List<CartItem>,
+    modifier: Modifier = Modifier
+) {
+    var expanded by remember { mutableStateOf(true) }
+
+    Surface(
+        shape = RoundedCornerShape(12.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)),
+        modifier = modifier.fillMaxWidth()
+    ) {
+        Column(modifier = Modifier.padding(12.dp)) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { expanded = !expanded },
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.ShoppingCart,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Items in this Cart (${cartItems.size})",
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+                Text(
+                    text = if (expanded) "Hide ▲" else "Show ▼",
+                    fontSize = 11.5.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+
+            if (expanded) {
+                Spacer(modifier = Modifier.height(8.dp))
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
+                Spacer(modifier = Modifier.height(6.dp))
+
+                cartItems.forEach { item ->
+                    val qtyDisplay = if (item.quantity % 1.0 == 0.0) item.quantity.toInt().toString() else String.format(Locale.ENGLISH, "%.1f", item.quantity)
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 3.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = item.name,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Medium,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                            Text(
+                                text = "$qtyDisplay ${item.unit} × ₹${String.format(Locale.ENGLISH, "%.2f", item.rate)}" + if (item.lineDiscount > 0) " (Disc -₹${item.lineDiscount})" else "",
+                                fontSize = 10.5.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        Text(
+                            text = "₹${String.format(Locale.ENGLISH, "%.2f", item.totalAmount)}",
+                            fontSize = 12.5.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
                 }
             }
         }

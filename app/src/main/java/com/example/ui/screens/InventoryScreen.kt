@@ -1,7 +1,10 @@
 package com.example.ui.screens
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.ui.draw.shadow
+import java.util.Locale
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -26,9 +29,12 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.TableView
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FilterChip
@@ -72,6 +78,7 @@ fun InventoryScreen(
     viewModel: KiranaViewModel,
     onOpenAddProduct: (ProductItem?) -> Unit,
     onOpenScanner: () -> Unit,
+    onNavigateToCart: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -84,6 +91,9 @@ fun InventoryScreen(
     val lowStockProducts by viewModel.lowStockProducts.collectAsStateWithLifecycle()
     val outOfStockProducts by viewModel.outOfStockProducts.collectAsStateWithLifecycle()
     val inactiveProducts by viewModel.inactiveProducts.collectAsStateWithLifecycle()
+
+    val cartItems by viewModel.cartItems.collectAsStateWithLifecycle()
+    val cartGrandTotal by viewModel.cartGrandTotal.collectAsStateWithLifecycle()
 
     var productToAdjust by remember { mutableStateOf<ProductItem?>(null) }
     var sortOption by remember { mutableStateOf("Name A-Z") }
@@ -387,9 +397,10 @@ fun InventoryScreen(
                         modifier = Modifier.fillMaxSize(),
                         verticalArrangement = Arrangement.spacedBy(10.dp),
                         horizontalArrangement = Arrangement.spacedBy(10.dp),
-                        contentPadding = PaddingValues(bottom = 110.dp)
+                        contentPadding = PaddingValues(bottom = if (cartItems.isNotEmpty()) 150.dp else 110.dp)
                     ) {
                         items(sortedProducts, key = { it.id }) { product ->
+                            val itemCartQty = cartItems.find { it.productId == product.id }?.quantity ?: 0.0
                             ProductCard(
                                 product = product,
                                 onEdit = { onOpenAddProduct(it) },
@@ -397,9 +408,90 @@ fun InventoryScreen(
                                 onDeactivate = { viewModel.deactivateProduct(it) },
                                 onReactivate = { viewModel.reactivateProduct(it) },
                                 onAddToCart = { viewModel.addToCart(it) },
+                                cartQuantity = itemCartQty,
                                 onDelete = { viewModel.deleteProduct(it) }
                             )
                         }
+                    }
+                }
+            }
+        }
+
+        // Floating Cart Bar (Shows what's inside cart and total with one-tap navigation)
+        if (cartItems.isNotEmpty()) {
+            Surface(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 10.dp)
+                    .shadow(10.dp, RoundedCornerShape(16.dp))
+                    .testTag("floating_cart_bar"),
+                shape = RoundedCornerShape(16.dp),
+                color = MaterialTheme.colorScheme.primaryContainer,
+                border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.4f))
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onNavigateToCart() }
+                        .padding(horizontal = 14.dp, vertical = 10.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        BadgedBox(
+                            badge = {
+                                Badge(
+                                    containerColor = MaterialTheme.colorScheme.primary,
+                                    contentColor = MaterialTheme.colorScheme.onPrimary
+                                ) {
+                                    Text(
+                                        text = cartItems.size.toString(),
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 11.sp
+                                    )
+                                }
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.ShoppingCart,
+                                contentDescription = "Cart",
+                                tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
+
+                        Column {
+                            Text(
+                                text = "${cartItems.size} ${if (cartItems.size == 1) "item" else "items"} in cart",
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                            Text(
+                                text = "Total: ₹${String.format(Locale.ENGLISH, "%.2f", cartGrandTotal)}",
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.ExtraBold,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
+
+                    Button(
+                        onClick = onNavigateToCart,
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                        shape = RoundedCornerShape(10.dp),
+                        contentPadding = PaddingValues(horizontal = 14.dp, vertical = 8.dp),
+                        modifier = Modifier.testTag("view_cart_btn")
+                    ) {
+                        Text(
+                            text = "VIEW CART →",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 12.sp
+                        )
                     }
                 }
             }
@@ -412,7 +504,7 @@ fun InventoryScreen(
             contentColor = MaterialTheme.colorScheme.onPrimary,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .padding(bottom = 20.dp, end = 20.dp)
+                .padding(bottom = if (cartItems.isNotEmpty()) 78.dp else 20.dp, end = 20.dp)
                 .testTag("fab_add_product")
         ) {
             Icon(imageVector = Icons.Default.Add, contentDescription = "Add Product")
