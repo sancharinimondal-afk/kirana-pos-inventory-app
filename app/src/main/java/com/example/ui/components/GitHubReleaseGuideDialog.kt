@@ -55,14 +55,13 @@ fun GitHubReleaseGuideDialog(
     val clipboardManager = LocalClipboardManager.current
 
     val instructionsText = """
-        How to Download APK automatically from GitHub Releases:
+        How to Download APK from GitHub Releases:
         
-        1. In Google AI Studio, click the project menu and choose "Push to GitHub" or "Export to GitHub".
-        2. Once pushed to your GitHub repository, GitHub Actions automatically detects `.github/workflows/release.yml`.
-        3. The workflow builds the Android APK and publishes a new GitHub Release with the APK attached.
-        4. Go to: https://github.com/<YOUR_USERNAME>/<REPO_NAME>/releases
-        5. Tap on the latest release and download `app-debug.apk` directly to your phone.
-        6. Tap the downloaded APK to install Kirana Inventory on your shop tablet or phone!
+        1. Open your repository releases page:
+           https://github.com/sancharinimondal-afk/kirana-pos-inventory-app/releases
+        2. Tap on the latest release at the top (e.g., v1.0.x).
+        3. Under Assets, download `app-release.apk` (or `app-debug.apk`) directly to your phone.
+        4. Tap the downloaded APK to install Kirana Inventory on your shop tablet or phone!
     """.trimIndent()
 
     Dialog(

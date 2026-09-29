@@ -3,6 +3,7 @@
   "description": "Store Management - Manage Your Store Easily & Smartly. Features inventory, billing, purchase, reports, stock alerts, and backup.",
   "requestFramePermissions": [
     "android.permission.CAMERA",
+    "android.permission.RECORD_AUDIO",
     "android.permission.BLUETOOTH",
     "android.permission.BLUETOOTH_CONNECT",
     "android.permission.BLUETOOTH_SCAN"
