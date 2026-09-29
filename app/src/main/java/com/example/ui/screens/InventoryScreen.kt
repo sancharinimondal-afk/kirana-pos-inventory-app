@@ -23,6 +23,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -308,6 +309,13 @@ fun InventoryScreen(
                         onClick = {
                             viewModel.selectedCategory.value = if (isCatSelected) "All" else category
                         },
+                        leadingIcon = {
+                            Box(
+                                modifier = Modifier
+                                    .size(8.dp)
+                                    .background(catInfo.tagColor, CircleShape)
+                            )
+                        },
                         label = {
                             Text(
                                 text = "$category ($count)",
@@ -317,8 +325,13 @@ fun InventoryScreen(
                         },
                         shape = RoundedCornerShape(10.dp),
                         colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
-                            selectedLabelColor = MaterialTheme.colorScheme.onSecondaryContainer
+                            selectedContainerColor = catInfo.tagColor.copy(alpha = 0.20f),
+                            selectedLabelColor = catInfo.tagColor
+                        ),
+                        border = FilterChipDefaults.filterChipBorder(
+                            enabled = true,
+                            selected = isCatSelected,
+                            borderColor = if (isCatSelected) catInfo.tagColor else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f)
                         ),
                         modifier = Modifier.testTag("cat_chip_${category.lowercase().replace(" ", "_")}")
                     )
@@ -484,7 +497,9 @@ fun InventoryScreen(
                                 onReactivate = { viewModel.reactivateProduct(it) },
                                 onAddToCart = { viewModel.addToCart(it) },
                                 cartQuantity = itemCartQty,
-                                onDelete = { viewModel.deleteProduct(it) }
+                                onDelete = { viewModel.deleteProduct(it) },
+                                onIncrementCart = { viewModel.incrementCartItem(it.id) },
+                                onDecrementCart = { viewModel.decrementCartItem(it.id) }
                             )
                         }
                     }
