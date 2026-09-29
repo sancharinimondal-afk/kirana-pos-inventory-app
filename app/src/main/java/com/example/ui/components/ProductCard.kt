@@ -134,20 +134,11 @@ fun ProductCard(
         elevation = CardDefaults.cardElevation(defaultElevation = if (product.isActive) 2.dp else 0.dp)
     ) {
         Column(modifier = Modifier.padding(14.dp)) {
-            // Header Row: Thumbnail + Product Name & Barcode/SKU + Stock Status
+            // Header Row: Product Name & Barcode/SKU + Stock Status
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.Top
             ) {
-                // Product Thumbnail
-                ProductThumbnail(
-                    name = product.name,
-                    category = product.category,
-                    size = 52.dp
-                )
-
-                Spacer(modifier = Modifier.width(12.dp))
-
                 // Name, Barcode/SKU, and Category
                 Column(modifier = Modifier.weight(1f)) {
                     Text(

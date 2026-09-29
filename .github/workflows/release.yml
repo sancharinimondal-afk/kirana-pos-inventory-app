@@ -145,7 +145,6 @@ jobs:
             4. Tap **Install** and launch **Grocery Shop**!
             
             **Features Included:**
-            - 🎙️ **Voice Search**: Search catalog items by voice with native recognition & quick suggestions.
             - 🔒 **100% Offline-First & Local-Only**: Operates with full capability without internet connection.
             - ⚡ **Real-Time Stock Alerts**: Color-coded badges and alerts for low stock and out-of-stock items.
             - 🔍 **Barcode Integration**: Camera barcode scanner + USB/Bluetooth scanner support.

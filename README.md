@@ -24,10 +24,6 @@ Download the ready-to-install Android APK on any Android phone, tablet, or handh
 
 ## 🌟 Key Features
 
-### 🎙️ Voice Search in Inventory
-- Search items instantly by speaking product names (e.g., *"Basmati Rice"*, *"Tata Tea"*, *"Sugar"*, *"Fortune Oil"*).
-- Integrated with Android speech recognition and interactive pulse feedback with popular grocery suggestion chips.
-
 ### 🧾 High-Speed POS Billing
 - Barcode scanning with device camera, physical USB barcode guns, and Bluetooth scanners.
 - Rapid product search by Name, SKU, or Barcode with instant auto-add.

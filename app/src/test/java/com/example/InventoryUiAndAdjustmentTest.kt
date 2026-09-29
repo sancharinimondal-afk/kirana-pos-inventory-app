@@ -181,7 +181,7 @@ class InventoryUiAndAdjustmentTest {
     }
 
     @Test
-    fun testVoiceSearchFiltersProductByName() = runBlocking {
+    fun testCatalogSearchFiltersProductByName() = runBlocking {
         val p1 = ProductItem(barcode = "890111", name = "Basmati Rice 5kg", category = "Grains", costPrice = 300.0, sellingPrice = 350.0, mrp = 380.0, currentStock = 20.0, isActive = true)
         val p2 = ProductItem(barcode = "890222", name = "Fortune Mustard Oil 1L", category = "Oils", costPrice = 140.0, sellingPrice = 160.0, mrp = 175.0, currentStock = 15.0, isActive = true)
         val p3 = ProductItem(barcode = "890333", name = "Tata Tea Gold 500g", category = "Beverages", costPrice = 200.0, sellingPrice = 240.0, mrp = 260.0, currentStock = 10.0, isActive = true)
@@ -191,13 +191,13 @@ class InventoryUiAndAdjustmentTest {
         repository.insertProduct(p3)
 
         val all = repository.allProducts.first()
-        val voiceQuery1 = "Rice"
-        val matched1 = all.filter { it.name.contains(voiceQuery1, ignoreCase = true) }
+        val query1 = "Rice"
+        val matched1 = all.filter { it.name.contains(query1, ignoreCase = true) }
         assertEquals(1, matched1.size)
         assertEquals("Basmati Rice 5kg", matched1[0].name)
 
-        val voiceQuery2 = "Tea"
-        val matched2 = all.filter { it.name.contains(voiceQuery2, ignoreCase = true) }
+        val query2 = "Tea"
+        val matched2 = all.filter { it.name.contains(query2, ignoreCase = true) }
         assertEquals(1, matched2.size)
         assertEquals("Tata Tea Gold 500g", matched2[0].name)
     }

@@ -52,7 +52,6 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.data.model.ProductItem
 import com.example.ui.KiranaViewModel
-import com.example.ui.components.ProductThumbnail
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -168,15 +167,6 @@ fun StockAlertScreen(
                                 .padding(14.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            // Product Thumbnail
-                            ProductThumbnail(
-                                name = product.name,
-                                category = product.category,
-                                size = 52.dp
-                            )
-
-                            Spacer(modifier = Modifier.width(14.dp))
-
                             // Name & Stock Info
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(

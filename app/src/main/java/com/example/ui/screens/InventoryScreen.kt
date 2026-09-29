@@ -1,13 +1,5 @@
 package com.example.ui.screens
 
-import android.Manifest
-import android.app.Activity
-import android.content.Intent
-import android.content.pm.PackageManager
-import android.speech.RecognizerIntent
-import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -36,7 +28,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.ShoppingCart
@@ -75,7 +66,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.data.model.KiranaCategories
 import com.example.data.model.ProductItem
@@ -83,7 +73,6 @@ import com.example.ui.KiranaViewModel
 import com.example.ui.StockFilterOption
 import com.example.ui.components.AdjustStockDialog
 import com.example.ui.components.ProductCard
-import com.example.ui.components.VoiceSearchDialog
 import com.example.ui.theme.LowStockAlertColor
 import com.example.ui.theme.OutOfStockAlertColor
 import com.example.ui.theme.kiranaTextFieldColors
@@ -114,73 +103,6 @@ fun InventoryScreen(
     var sortOption by remember { mutableStateOf("Name A-Z") }
     val sortOptions = listOf("Name A-Z", "Stock Low-High", "Price Low-High")
     var showLoadDemoConfirmDialog by remember { mutableStateOf(false) }
-    var showVoiceSearchDialog by remember { mutableStateOf(false) }
-
-    // System voice recognizer intent launcher
-    val speechRecognizerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            val spokenText = result.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.firstOrNull()?.trim()
-            if (!spokenText.isNullOrBlank()) {
-                viewModel.searchQuery.value = spokenText
-                Toast.makeText(context, "Searching: \"$spokenText\"", Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
-
-    // Audio recording permission launcher
-    val recordAudioPermissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission()
-    ) { isGranted ->
-        if (isGranted) {
-            val speechIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
-                putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-                putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
-                putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak product name to search...")
-            }
-            val canHandle = speechIntent.resolveActivity(context.packageManager) != null
-            if (canHandle) {
-                try {
-                    speechRecognizerLauncher.launch(speechIntent)
-                } catch (e: Exception) {
-                    showVoiceSearchDialog = true
-                }
-            } else {
-                showVoiceSearchDialog = true
-            }
-        } else {
-            Toast.makeText(context, "Microphone permission required for voice search", Toast.LENGTH_SHORT).show()
-            showVoiceSearchDialog = true
-        }
-    }
-
-    fun handleVoiceSearchClick() {
-        val hasPermission = ContextCompat.checkSelfPermission(
-            context,
-            Manifest.permission.RECORD_AUDIO
-        ) == PackageManager.PERMISSION_GRANTED
-
-        if (hasPermission) {
-            val speechIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
-                putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-                putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
-                putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak product name to search...")
-            }
-            val canHandle = speechIntent.resolveActivity(context.packageManager) != null
-            if (canHandle) {
-                try {
-                    speechRecognizerLauncher.launch(speechIntent)
-                } catch (e: Exception) {
-                    showVoiceSearchDialog = true
-                }
-            } else {
-                showVoiceSearchDialog = true
-            }
-        } else {
-            recordAudioPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
-        }
-    }
 
     // Active products count
     val activeProductsCount = allProducts.count { it.isActive }
@@ -228,20 +150,6 @@ fun InventoryScreen(
                                         modifier = Modifier.size(18.dp)
                                     )
                                 }
-                            }
-                            // Microphone button for voice recognition search
-                            IconButton(
-                                onClick = { handleVoiceSearchClick() },
-                                modifier = Modifier
-                                    .size(34.dp)
-                                    .testTag("inventory_voice_search_btn")
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Mic,
-                                    contentDescription = "Voice Search",
-                                    tint = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.size(20.dp)
-                                )
                             }
                             // Barcode Scanner button
                             IconButton(
@@ -711,21 +619,6 @@ fun InventoryScreen(
                     Text("Cancel")
                 }
             }
-        )
-    }
-
-    // Voice Search Dialog (In-app interactive voice recognizer & suggestion chips)
-    if (showVoiceSearchDialog) {
-        val topItemNames = remember(allProducts) {
-            allProducts.filter { it.isActive }.map { it.name }.distinct().take(12)
-        }
-        VoiceSearchDialog(
-            onDismissRequest = { showVoiceSearchDialog = false },
-            onSpeechResult = { resultText ->
-                viewModel.searchQuery.value = resultText
-                showVoiceSearchDialog = false
-            },
-            suggestedProducts = topItemNames
         )
     }
 }
