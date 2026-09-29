@@ -191,11 +191,11 @@ fun ProductCard(
                             color = catInfo.tagBgColor
                         ) {
                             Text(
-                                text = "${catInfo.emoji} ${catInfo.nameEn}",
+                                text = catInfo.nameEn,
                                 fontSize = 10.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = catInfo.tagColor,
-                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                modifier = Modifier.padding(horizontal = 7.dp, vertical = 2.dp)
                             )
                         }
 

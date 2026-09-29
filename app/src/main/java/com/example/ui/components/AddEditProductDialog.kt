@@ -377,14 +377,12 @@ fun AddEditProductDialog(
                                                 .testTag("cat_option_${catInfo.nameEn.lowercase().replace(" ", "_").replace("&", "and")}")
                                         ) {
                                             Row(
-                                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 7.dp),
+                                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 9.dp),
                                                 verticalAlignment = Alignment.CenterVertically
                                             ) {
-                                                Text(text = catInfo.emoji, fontSize = 16.sp)
-                                                Spacer(modifier = Modifier.width(6.dp))
                                                 Text(
                                                     text = catInfo.nameEn,
-                                                    fontSize = 11.sp,
+                                                    fontSize = 11.5.sp,
                                                     fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
                                                     color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
                                                     modifier = Modifier.weight(1f)

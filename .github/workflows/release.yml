@@ -93,6 +93,7 @@ jobs:
         env:
           STORE_PASSWORD: ${{ secrets.STORE_PASSWORD || 'releasepass123' }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD || secrets.STORE_PASSWORD || 'releasepass123' }}
+          KEY_ALIAS: upload
           KEYSTORE_PATH: ${{ github.workspace }}/my-upload-key.jks
         run: ./gradlew assembleRelease assembleDebug --stacktrace
 

@@ -310,8 +310,8 @@ fun InventoryScreen(
                         },
                         label = {
                             Text(
-                                text = "${catInfo.emoji} $category ($count)",
-                                fontSize = 11.sp,
+                                text = "$category ($count)",
+                                fontSize = 11.5.sp,
                                 fontWeight = if (isCatSelected) FontWeight.Bold else FontWeight.Medium
                             )
                         },
