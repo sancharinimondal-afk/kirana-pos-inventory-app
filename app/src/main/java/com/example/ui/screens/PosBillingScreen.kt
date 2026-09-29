@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
@@ -344,14 +346,18 @@ fun PosBillingScreen(
             val listState = rememberLazyListState()
             val coroutineScope = rememberCoroutineScope()
 
-            Box(modifier = Modifier.fillMaxSize()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .imePadding()
+            ) {
                 LazyColumn(
                     state = listState,
                     modifier = Modifier
                         .fillMaxSize()
                         .testTag("pos_compact_scroll_list"),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
-                    contentPadding = PaddingValues(bottom = if (cartItems.isNotEmpty()) 88.dp else 16.dp)
+                    contentPadding = PaddingValues(bottom = if (cartItems.isNotEmpty()) 160.dp else 28.dp)
                 ) {
                     item {
                         PosTopBar(
@@ -1360,6 +1366,7 @@ private fun PosBottomSummary(
     grandTotal: Double,
     modifier: Modifier = Modifier
 ) {
+    val focusManager = LocalFocusManager.current
     Column(modifier = modifier.fillMaxWidth()) {
         // Subtotal
         Row(
@@ -1409,7 +1416,8 @@ private fun PosBottomSummary(
                 value = discountInput,
                 onValueChange = onDiscountInputChange,
                 placeholder = { Text("0.0", fontSize = 12.sp) },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Done),
+                keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
                 singleLine = true,
                 modifier = Modifier
                     .width(90.dp)
@@ -1483,6 +1491,7 @@ private fun PosPaymentSection(
     onPaymentReferenceChange: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val focusManager = LocalFocusManager.current
     Column(modifier = modifier.fillMaxWidth()) {
         Text(
             text = "Payment Method",
@@ -1549,7 +1558,8 @@ private fun PosPaymentSection(
                             value = cashReceivedInput,
                             onValueChange = onCashInputChange,
                             placeholder = { Text("0.0", fontSize = 13.sp) },
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Done),
+                            keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
                             singleLine = true,
                             modifier = Modifier
                                 .width(120.dp)
@@ -1746,6 +1756,8 @@ private fun PosPaymentSection(
                                 fontSize = 12.sp
                             )
                         },
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                        keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
                         singleLine = true,
                         modifier = Modifier
                             .fillMaxWidth()

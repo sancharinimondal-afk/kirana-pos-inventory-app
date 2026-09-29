@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -16,10 +17,15 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
@@ -213,77 +219,108 @@ fun ThermalReceiptDialog(
 
     Dialog(
         onDismissRequest = onDismiss,
-        properties = DialogProperties(usePlatformDefaultWidth = false)
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false,
+            decorFitsSystemWindows = false
+        )
     ) {
-        Surface(
+        Box(
             modifier = Modifier
-                .fillMaxWidth(0.96f)
-                .padding(vertical = 16.dp)
-                .testTag("thermal_receipt_dialog"),
-            shape = RoundedCornerShape(20.dp),
-            color = MaterialTheme.colorScheme.surface,
-            tonalElevation = 8.dp
+                .fillMaxSize()
+                .statusBarsPadding()
+                .navigationBarsPadding()
+                .imePadding()
+                .padding(horizontal = 10.dp, vertical = 8.dp),
+            contentAlignment = Alignment.Center
         ) {
-            Column(
+            Surface(
                 modifier = Modifier
-                    .padding(16.dp)
-                    .verticalScroll(rememberScrollState())
+                    .fillMaxWidth()
+                    .fillMaxHeight()
+                    .testTag("thermal_receipt_dialog"),
+                shape = RoundedCornerShape(20.dp),
+                color = MaterialTheme.colorScheme.surface,
+                tonalElevation = 8.dp
             ) {
-                // 1. Success Banner (Sale is committed to DB before reaching this dialog)
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .testTag("sale_success_banner"),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFFDCFCE7)),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Column(
+                Column(modifier = Modifier.fillMaxSize()) {
+                    // 1. Success Banner Header
+                    Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(12.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                            .padding(horizontal = 14.dp, vertical = 10.dp)
+                            .testTag("sale_success_banner"),
+                        colors = CardDefaults.cardColors(containerColor = Color(0xFFDCFCE7)),
+                        shape = RoundedCornerShape(12.dp)
                     ) {
                         Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 12.dp, vertical = 10.dp),
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center
+                            horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.CheckCircle,
-                                contentDescription = "Saved Successfully",
-                                tint = Color(0xFF16A34A),
-                                modifier = Modifier.size(24.dp)
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                text = "Saved Successfully",
-                                fontWeight = FontWeight.ExtraBold,
-                                fontSize = 17.sp,
-                                color = Color(0xFF15803D),
-                                modifier = Modifier.testTag("sale_saved_successfully_text")
-                            )
+                            Column(modifier = Modifier.weight(1f)) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.CheckCircle,
+                                        contentDescription = "Saved Successfully",
+                                        tint = Color(0xFF16A34A),
+                                        modifier = Modifier.size(22.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text(
+                                        text = "Saved Successfully",
+                                        fontWeight = FontWeight.ExtraBold,
+                                        fontSize = 15.5.sp,
+                                        color = Color(0xFF15803D),
+                                        modifier = Modifier.testTag("sale_saved_successfully_text")
+                                    )
+                                }
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Text(
+                                    text = "Invoice Number: ${transaction.invoiceNumber}",
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 13.5.sp,
+                                    fontFamily = FontFamily.Monospace,
+                                    color = Color(0xFF1E293B),
+                                    modifier = Modifier.testTag("sale_invoice_number_text")
+                                )
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Text(
+                                    text = "Grand Total: ₹${String.format(Locale.ENGLISH, "%.2f", transaction.grandTotal)} • Mode: ${transaction.paymentMode}",
+                                    fontSize = 11.5.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = Color(0xFF475569)
+                                )
+                            }
+
+                            IconButton(
+                                onClick = onDismiss,
+                                modifier = Modifier.size(36.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Close,
+                                    contentDescription = "Close",
+                                    tint = Color(0xFF15803D),
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
                         }
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = "Invoice Number: ${transaction.invoiceNumber}",
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 15.sp,
-                            fontFamily = FontFamily.Monospace,
-                            color = Color(0xFF1E293B),
-                            modifier = Modifier.testTag("sale_invoice_number_text")
-                        )
-                        Spacer(modifier = Modifier.height(2.dp))
-                        Text(
-                            text = "Grand Total: ₹${String.format(Locale.ENGLISH, "%.2f", transaction.grandTotal)} • Mode: ${transaction.paymentMode}",
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            color = Color(0xFF475569)
-                        )
                     }
-                }
 
-                Spacer(modifier = Modifier.height(12.dp))
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f))
 
-                // 2. Paper Size Selector (58mm vs 80mm)
+                    // Middle Scrollable Area: Receipt layout, preview card, and Bluetooth controls
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                            .padding(horizontal = 14.dp, vertical = 8.dp)
+                            .verticalScroll(rememberScrollState())
+                    ) {
+                        // 2. Paper Size Selector (58mm vs 80mm)
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -672,107 +709,121 @@ fun ThermalReceiptDialog(
                         }
                     }
                 }
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                // 5. System Print & Sharing Actions
-                Text(
-                    text = "Alternative Print & Share:",
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 12.5.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Spacer(modifier = Modifier.height(6.dp))
-
-                Row(modifier = Modifier.fillMaxWidth()) {
-                    Button(
-                        onClick = {
-                            ThermalPrinterManager.printViaSystemPrintManager(
-                                context = context,
-                                transaction = transaction,
-                                items = items,
-                                settings = settings,
-                                paperWidth = selectedPaperWidth
-                            )
-                        },
-                        modifier = Modifier
-                            .weight(1f)
-                            .testTag("sale_success_print_btn"),
-                        shape = RoundedCornerShape(10.dp)
-                    ) {
-                        Icon(Icons.Default.Print, contentDescription = "System Print", modifier = Modifier.size(16.dp))
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text("System Print", fontSize = 12.sp)
-                    }
-
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                    Button(
-                        onClick = {
-                            ThermalPrinterManager.shareReceiptViaWhatsApp(
-                                context = context,
-                                transaction = transaction,
-                                items = items,
-                                settings = settings,
-                                paperWidth = selectedPaperWidth
-                            )
-                        },
-                        modifier = Modifier
-                            .weight(1f)
-                            .testTag("sale_success_share_btn"),
-                        colors = ButtonDefaults.buttonColors(containerColor = WhatsAppGreen, contentColor = Color.White),
-                        shape = RoundedCornerShape(10.dp)
-                    ) {
-                        Icon(Icons.Default.Share, contentDescription = "Share", modifier = Modifier.size(16.dp))
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text("Share", fontSize = 12.sp)
-                    }
-
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                    OutlinedButton(
-                        onClick = {
-                            clipboardManager.setText(AnnotatedString(receiptText))
-                            Toast.makeText(context, "Receipt text copied to clipboard!", Toast.LENGTH_SHORT).show()
-                        },
-                        modifier = Modifier
-                            .weight(0.7f)
-                            .testTag("copy_receipt_button"),
-                        shape = RoundedCornerShape(10.dp)
-                    ) {
-                        Icon(Icons.Default.ContentCopy, contentDescription = "Copy", modifier = Modifier.size(15.dp))
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text("Copy", fontSize = 11.5.sp)
-                    }
                 }
 
-                Spacer(modifier = Modifier.height(14.dp))
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f))
 
-                // 6. New Sale Primary Action Button
-                Button(
-                    onClick = onDismiss,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(48.dp)
-                        .testTag("sale_success_new_sale_btn"),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary
-                    ),
-                    shape = RoundedCornerShape(12.dp)
+                // 5 & 6. Sticky Bottom Footer: ALWAYS VISIBLE ABOVE MOBILE KEYS
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    color = MaterialTheme.colorScheme.surface,
+                    tonalElevation = 6.dp
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.AddCircleOutline,
-                        contentDescription = "New Sale",
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = "New Sale",
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.Bold
-                    )
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 14.dp, vertical = 10.dp)
+                    ) {
+                        Text(
+                            text = "Alternative Print & Share:",
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 11.5.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(modifier = Modifier.height(6.dp))
+
+                        Row(modifier = Modifier.fillMaxWidth()) {
+                            Button(
+                                onClick = {
+                                    ThermalPrinterManager.printViaSystemPrintManager(
+                                        context = context,
+                                        transaction = transaction,
+                                        items = items,
+                                        settings = settings,
+                                        paperWidth = selectedPaperWidth
+                                    )
+                                },
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .testTag("sale_success_print_btn"),
+                                shape = RoundedCornerShape(10.dp)
+                            ) {
+                                Icon(Icons.Default.Print, contentDescription = "System Print", modifier = Modifier.size(15.dp))
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text("Print", fontSize = 12.sp)
+                            }
+
+                            Spacer(modifier = Modifier.width(8.dp))
+
+                            Button(
+                                onClick = {
+                                    ThermalPrinterManager.shareReceiptViaWhatsApp(
+                                        context = context,
+                                        transaction = transaction,
+                                        items = items,
+                                        settings = settings,
+                                        paperWidth = selectedPaperWidth
+                                    )
+                                },
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .testTag("sale_success_share_btn"),
+                                colors = ButtonDefaults.buttonColors(containerColor = WhatsAppGreen, contentColor = Color.White),
+                                shape = RoundedCornerShape(10.dp)
+                            ) {
+                                Icon(Icons.Default.Share, contentDescription = "Share", modifier = Modifier.size(15.dp))
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text("WhatsApp", fontSize = 12.sp)
+                            }
+
+                            Spacer(modifier = Modifier.width(8.dp))
+
+                            OutlinedButton(
+                                onClick = {
+                                    clipboardManager.setText(AnnotatedString(receiptText))
+                                    Toast.makeText(context, "Receipt text copied to clipboard!", Toast.LENGTH_SHORT).show()
+                                },
+                                modifier = Modifier
+                                    .weight(0.7f)
+                                    .testTag("copy_receipt_button"),
+                                shape = RoundedCornerShape(10.dp)
+                            ) {
+                                Icon(Icons.Default.ContentCopy, contentDescription = "Copy", modifier = Modifier.size(14.dp))
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text("Copy", fontSize = 11.5.sp)
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(10.dp))
+
+                        // 6. New Sale Primary Action Button
+                        Button(
+                            onClick = onDismiss,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(48.dp)
+                                .testTag("sale_success_new_sale_btn"),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary
+                            ),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.AddCircleOutline,
+                                contentDescription = "New Sale",
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = "New Sale",
+                                fontSize = 15.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
                 }
             }
         }
     }
+}
 }
