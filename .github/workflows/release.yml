@@ -52,13 +52,25 @@ jobs:
           fi
           ./gradlew dependencies --dry-run || true
 
-      # Secure Release Signing Setup (using GitHub Secrets without committing sensitive keys)
-      - name: Configure Secure Release Keystore
+      # Secure Release & Debug Signing Setup
+      - name: Configure Keystores for CI Runner
         env:
           KEYSTORE_BASE64: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
           STORE_PWD: ${{ secrets.STORE_PASSWORD || 'releasepass123' }}
           KEY_PWD: ${{ secrets.KEY_PASSWORD || secrets.STORE_PASSWORD || 'releasepass123' }}
         run: |
+          # Ensure debug.keystore exists in root for debugConfig
+          if [ ! -f "${{ github.workspace }}/debug.keystore" ]; then
+            echo "Generating debug keystore for runner..."
+            keytool -genkey -v -keystore "${{ github.workspace }}/debug.keystore" \
+              -storepass android \
+              -alias androiddebugkey \
+              -keypass android \
+              -keyalg RSA -keysize 2048 -validity 10000 \
+              -dname "CN=Android Debug,O=Android,C=US"
+          fi
+
+          # Ensure release keystore exists for release build
           if [ -n "$KEYSTORE_BASE64" ]; then
             echo "Decoding release keystore from GitHub Secrets..."
             echo "$KEYSTORE_BASE64" | base64 -d > "${{ github.workspace }}/my-upload-key.jks"
